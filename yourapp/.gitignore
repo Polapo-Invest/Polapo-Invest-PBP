@@ -1,6 +1,6 @@
-yourapp/Include
-yourapp/SCripts
-yourapp/LIb
-yourapp/_pycache_
+yourapp/Include/
+yourapp/SCripts/
+yourapp/LIb/site-packages/
+yourapp/_pycache_/
 
 yourapp/pyvenv.cfg
