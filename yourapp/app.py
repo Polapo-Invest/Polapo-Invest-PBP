@@ -28,34 +28,51 @@ df = get_etf_price_data()
 class GEMTU772:
     # Initialization Function
     def __init__(self, price, param=52):
+    
+        # Annualization Parameter    
         self.param = param
+    
+        # Intraday Return Rate 
         self.rets = price.pct_change().dropna()
+      
+        # Expected Rate of Return        
         self.er = np.array(self.rets * self.param)
+      
+        # Volatility        
         self.vol = np.array(self.rets.rolling(self.param).std() * np.sqrt(self.param))
+      
+        # Covariance Matrix   
         cov = self.rets.rolling(self.param).cov().dropna() * self.param
+      
+        # Transaction Cost per Unit 
         self.cov = cov.values.reshape(int(cov.shape[0]/cov.shape[1]), cov.shape[1], cov.shape[1])
+        
         self.cost = 0.0005
-
+   
+    # Cross-Sectional Risk Models Class 
     class CrossSectional:
+        #EW
         def ew(self, er):
             noa = er.shape[0]
             weights = np.ones_like(er) * (1/noa)
             return weights
-
+        
         def msr(self, er, cov):
-            noa = er.shape[0]
+            noa = er.shape[0] 
             init_guess = np.repeat(1/noa, noa)
             bounds = ((0.0, 1.0), ) * noa
             weights_sum_to_1 = {'type': 'eq', 'fun': lambda weights: np.sum(weights) - 1}
 
+            
             def neg_sharpe(weights, er, cov):
-                r = weights.T @ er
+                r = weights.T @ er # @ means multiplication
                 vol = np.sqrt(weights.T @ cov @ weights)
                 return - r / vol
 
             weights = minimize(neg_sharpe, init_guess, args=(er, cov), method='SLSQP', constraints=(weights_sum_to_1,), bounds=bounds)
             return weights.x
-
+        
+        #GMV
         def gmv(self, cov):
             noa = cov.shape[0]
             init_guess = np.repeat(1/noa, noa)
@@ -68,7 +85,7 @@ class GEMTU772:
 
             weights = minimize(port_vol, init_guess, args=(cov,), method='SLSQP', constraints=(weights_sum_to_1,), bounds=bounds)
             return weights.x
-
+        #MDP
         def mdp(self, vol, cov):
             noa = vol.shape[0]
             init_guess = np.repeat(1/noa, noa)
@@ -82,7 +99,7 @@ class GEMTU772:
 
             weights = minimize(neg_div_ratio, init_guess, args=(vol, cov), method='SLSQP', constraints=(weights_sum_to_1,), bounds=bounds)
             return weights.x
-
+        #RP
         def rp(self, cov):
             noa = cov.shape[0]
             init_guess = np.repeat(1/noa, noa)
@@ -99,19 +116,21 @@ class GEMTU772:
 
             weights = minimize(msd_risk, init_guess, args=(target_risk, cov), method='SLSQP', constraints=(weights_sum_to_1,), bounds=bounds)
             return weights.x
-
+        #EMV
         def emv(self, vol):
             inv_vol = 1 / vol
             weights = inv_vol / inv_vol.sum()
             return weights
-
+   
+    # Time-Series Risk Models Class
     class TimeSeries:
+        #VT
         def vt(self, port_rets, param, vol_target=0.1):
             vol = port_rets.rolling(param).std().fillna(0) * np.sqrt(param)
             weights = (vol_target / vol).replace([np.inf, -np.inf], 0).shift(1).fillna(0)
             weights[weights > 1] = 1
             return weights
-
+        #CVT
         def cvt(self, port_rets, param, delta=0.01, cvar_target=0.05):
             def calculate_CVaR(rets, delta=0.01):
                 VaR = rets.quantile(delta)
@@ -121,14 +140,14 @@ class GEMTU772:
             weights = (cvar_target / rolling_CVaR).replace([np.inf, -np.inf], 0).shift(1).fillna(0)
             weights[weights > 1] = 1
             return weights
-
+        #KL
         def kl(self, port_rets, param):
             sharpe_ratio = (port_rets.rolling(param).mean() * np.sqrt(param) / port_rets.rolling(param).std())
             weights = pd.Series(2 * norm.cdf(sharpe_ratio) - 1, index=port_rets.index).fillna(0)
             weights[weights < 0] = 0
             weights = weights.shift(1).fillna(0)
             return weights
-
+        #CPPI
         def cppi(self, port_rets, m=3, floor=0.7, init_val=1):
             n_steps = len(port_rets)
             port_value = init_val
@@ -155,19 +174,27 @@ class GEMTU772:
                 floor_history.iloc[step] = floor_value
 
             return weight_history.shift(1).fillna(0)
-
+   
+    # Transaction Cost Function (Compound rate of return method assuming reinvestment)
     def transaction_cost(self, weights_df, rets_df, cost=0.0005):
         prev_weights_df = (weights_df.shift(1).fillna(0) * (1 + rets_df.iloc[self.param-1:,:])) \
             .div((weights_df.shift(1).fillna(0) * (1 + rets_df.iloc[self.param-1:,:])).sum(axis=1), axis=0)
-
+       
+        # Investment Weight of Previous Period (The backslash ('\') in Python is used as a line continuation character.)
         cost_df = abs(weights_df - prev_weights_df) * cost
         cost_df.fillna(0, inplace=True)
         return cost_df
-
+  
+    # Backtesting Execution Function
     def run(self, cs_model, ts_model, cost):
+        
+        # Empty Dictionary   
         backtest_dict = {}
+        
+        # Intraday Return Rate DataFrame
         rets = self.rets
-
+      
+        # Select and Run Cross-Sectional Risk Models
         for i, index in enumerate(rets.index[self.param-1:]):
             if cs_model == 'EW':
                 backtest_dict[index] = self.CrossSectional().ew(self.er[i])
@@ -181,12 +208,18 @@ class GEMTU772:
                 backtest_dict[index] = self.CrossSectional().emv(self.vol[i])
             elif cs_model == 'RP':
                 backtest_dict[index] = self.CrossSectional().rp(self.cov[i])
-
-        cs_weights = pd.DataFrame(list(backtest_dict.values()), index=backtest_dict.keys(), columns=rets.columns)
+     
+        # Cross-Sectional Weights DataFrame
+        cs_weights = pd.DataFrame(list(backtest_dict.values()), index=backtest_dict.keys(), columns=rets.columns)   
         cs_weights.fillna(0, inplace=True)
+        
+         # Cross-Sectional Risk Models Return on Assets
         cs_rets = cs_weights.shift(1) * rets.iloc[self.param-1:,:]
+       
+        # Cross-Sectional Risk Models Portfolio Return
         cs_port_rets = cs_rets.sum(axis=1)
-
+        
+        # Select and Run Time-Series Risk Models
         if ts_model == 'VT':
             ts_weights = self.TimeSeries().vt(cs_port_rets, self.param)
         elif ts_model == 'CVT':
@@ -197,10 +230,17 @@ class GEMTU772:
             ts_weights = self.TimeSeries().cppi(cs_port_rets)
         elif ts_model == None:
             ts_weights = 1
-
+            
+        # Final Portfolio Investment Weights
         port_weights = cs_weights.multiply(ts_weights, axis=0)
+        
+        # Transaction Cost DataFrame
         cost = self.transaction_cost(port_weights, rets)
+        
+        # Final Portfolio Return by Assets
         port_asset_rets = port_weights.shift() * rets - cost
+        
+        # Final Portfolio Return
         port_rets = port_asset_rets.sum(axis=1)
         port_rets.index = pd.to_datetime(port_rets.index).strftime("%Y-%m-%d")
 
@@ -246,19 +286,22 @@ class GEMTU772:
 
         return plot_url1, plot_url2, plot_url3
 
+#라우트 함수 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        cs_model = request.form.get('cs_model')
-        ts_model = request.form.get('ts_model')
-        engine = GEMTU772(df)
-        res = engine.run(cs_model=cs_model, ts_model=ts_model, cost=0.0005)
+        cs_model = request.form.get('cs_model') #첫번쨰꺼
+        ts_model = request.form.get('ts_model') #두번쨰꺼
+        engine = GEMTU772(df) #벡테이스팅 수행
+        res = engine.run(cs_model=cs_model, ts_model=ts_model, cost=0.0005) #run메서드
         port_weights = res[0]
         port_asset_rets = res[1]
         port_rets = res[2]
         plot_url1, plot_url2, plot_url3 = engine.performance_analytics(port_weights, port_asset_rets, port_rets)
-        return render_template('index.html', plot_url1=plot_url1, plot_url2=plot_url2, plot_url3=plot_url3)
-    return render_template('index.html')
+        return render_template('index.html', plot_url1=plot_url1, plot_url2=plot_url2, plot_url3=plot_url3) #렌더링
+    return render_template('index.html')    
+    
+    
 
 if __name__ == '__main__':
     app.run(debug=True)
