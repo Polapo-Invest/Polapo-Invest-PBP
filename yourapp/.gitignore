@@ -1,6 +1,6 @@
-Include/
-SCripts/
-LIb/
-_pycache_/
+yourapp/Include
+yourapp/SCripts
+yourapp/LIb
+yourapp/_pycache_
 
-pyvenv.cfg
+yourapp/pyvenv.cfg
