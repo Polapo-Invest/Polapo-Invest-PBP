@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Info{% endblock %}
+
+{% block content_wrap %}
+
+  <h1>App Info</h1>
+
+  <section class="text-box">
+    <h2>What is this web app about?</h2>
+
+    <p>This is a web app for generating optimal portfolios based on Sharpe Ratio. The ratio is a metric that compares the amount of return versus the amount of risk, based on historical data.</p>
+  </section>
+
+  <section class="text-box">
+    <h2>What is a good Sharpe Ratio?</h2>
+
+    <p>Sharpe Ratio above 1.00 is commonly considered to be "good". This suggests that the portfolio offers excess returns relative to its risk.</p>
+  </section>
+
+  <section class="text-box">
+    <h2>Measurement details</h2>
+
+    <p>\( \large{ \text{ Sharpe Ratio } = {R_p - R_f \over \sigma} } \)</p>
+
+    <p>\( \text{ Where: } \)</p>
+
+    <ul>
+      <li>\( R_p = \text{ annualized return of daily returns } \)</li>
+      <li>\( R_f = \text{ annual risk-free return } \)</li>
+      <li>\( \sigma = \text{ annualized standard deviation of daily returns } \)</li>
+    </ul>
+  </section>
+
+  <section class="text-box" style="margin-bottom: 50px;">
+    <h2>Limitations</h2>
+
+    <ul>
+      <li>Standard deviation as a proxy of total portfolio risk assumes that the daily returns are normally distributed. However, this is not always the case.</li>
+      <li>The Sharpe Ratio can be manipulated by lengthening the measurement interval. For example, using annualized standard deviation of weekly or monthly returns will generally result in lower volatility than with daily returns.</li>
+      <li>It's possible to cherry-pick a period for the analysis with the best potential Sharpe Ratio, rather than a neutral look-back period.</li>
+    </ul>
+  </section>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+{% endblock %}

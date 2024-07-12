@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backtesting Engine</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Backtesting Engine</h1>
+    <form method="post">
+        <label for="cs_model">Cross-Sectional Model:</label>
+        <select name="cs_model" id="cs_model">
+            <option value="EW">EW</option>
+            <option value="MSR">MSR</option>
+            <option value="GMV">GMV</option>
+            <option value="MDP">MDP</option>
+            <option value="EMV">EMV</option>
+            <option value="RP">RP</option>
+        </select><br><br>
+        <label for="ts_model">Time-Series Model:</label>
+        <select name="ts_model" id="ts_model">
+            <option value="VT">VT</option>
+            <option value="CVT">CVT</option>
+            <option value="KL">KL</option>
+            <option value="CPPI">CPPI</option>
+            <option value="">None</option>
+        </select><br><br>
+        <button type="submit">Run Backtest</button>
+    </form>
+    {% if plot_url1 and plot_url2 and plot_url3 %}
+        <h2>Backtesting Results</h2>
+        <img src="data:image/png;base64,{{ plot_url1 }}" alt="Portfolio Weights">
+        <img src="data:image/png;base64,{{ plot_url2 }}" alt="Underlying Asset Performance">
+        <img src="data:image/png;base64,{{ plot_url3 }}" alt="Portfolio Performance">
+    {% endif %}
+</body>
+</html>
