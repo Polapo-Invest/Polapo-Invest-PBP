@@ -290,9 +290,9 @@ class GEMTU772:
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        cs_model = request.form.get('cs_model') #첫번쨰꺼
-        ts_model = request.form.get('ts_model') #두번쨰꺼
-        engine = GEMTU772(df) #벡테이스팅 수행
+        cs_model = request.form.get('cs_model') #cs 모델 선택
+        ts_model = request.form.get('ts_model') #ts 모델 선택
+        engine = GEMTU772(df)  #벡테이스팅 수행
         res = engine.run(cs_model=cs_model, ts_model=ts_model, cost=0.0005) #run메서드
         port_weights = res[0]
         port_asset_rets = res[1]
