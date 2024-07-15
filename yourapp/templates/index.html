@@ -1,38 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Backtesting Engine</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
-    <h1>Backtesting Engine</h1>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+  <body>
+    <h1 class="text-6xl font-bold mb-4 text-center">Backtesting Engine</h1>
+
+    <div class="sidebar" id="sidebar">
+      <button class="toggle-button" onclick="toggleSidebar()">☰</button>
+      <div class="sidebar-content" id="sidebarContent">
+        <div class="container bg-white rounded-lg shadow-md">
+          <h1 class="text-3xl font-bold mb-4 text-center">ChatBot</h1>
+          <div class="chat" id="chatContainer"></div>
+          <div class="flex">
+            <input
+              type="text"
+              id="userInput"
+              placeholder="Type your message here..."
+              class="outline-none"
+              onkeyup="handleKeyPress(event)"
+            />
+            <button class="send-button" onclick="sendMessage()">Send</button>
+          </div>
+          <div class="typing-indicator" id="typingIndicator"></div>
+        </div>
+      </div>
+    </div>
+
     <form method="post">
-        <label for="cs_model">Cross-Sectional Model:</label>
-        <select name="cs_model" id="cs_model">
-            <option value="EW">EW</option>
-            <option value="MSR">MSR</option>
-            <option value="GMV">GMV</option>
-            <option value="MDP">MDP</option>
-            <option value="EMV">EMV</option>
-            <option value="RP">RP</option>
-        </select><br><br>
-        <label for="ts_model">Time-Series Model:</label>
-        <select name="ts_model" id="ts_model">
-            <option value="VT">VT</option>
-            <option value="CVT">CVT</option>
-            <option value="KL">KL</option>
-            <option value="CPPI">CPPI</option>
-            <option value="">None</option>
-        </select><br><br>
-        <button type="submit">Run Backtest</button>
+      <label for="cs_model">Cross-Sectional Model:</label>
+      <select name="cs_model" id="cs_model">
+        <option value="EW">EW</option>
+        <option value="MSR">MSR</option>
+        <option value="GMV">GMV</option>
+        <option value="MDP">MDP</option>
+        <option value="EMV">EMV</option>
+        <option value="RP">RP</option></select
+      ><br /><br />
+      <label for="ts_model">Time-Series Model:</label>
+      <select name="ts_model" id="ts_model">
+        <option value="VT">VT</option>
+        <option value="CVT">CVT</option>
+        <option value="KL">KL</option>
+        <option value="CPPI">CPPI</option>
+        <option value="">None</option></select
+      ><br /><br />
+      <button type="submit">Run Backtest</button>
     </form>
     {% if plot_url1 and plot_url2 and plot_url3 %}
-        <h2>Backtesting Results</h2>
-        <img src="data:image/png;base64,{{ plot_url1 }}" alt="Portfolio Weights">
-        <img src="data:image/png;base64,{{ plot_url2 }}" alt="Underlying Asset Performance">
-        <img src="data:image/png;base64,{{ plot_url3 }}" alt="Portfolio Performance">
+    <h2>Backtesting Results</h2>
+    <img src="data:image/png;base64,{{ plot_url1 }}" alt="Portfolio Weights" />
+    <img
+      src="data:image/png;base64,{{ plot_url2 }}"
+      alt="Underlying Asset Performance"
+    />
+    <img
+      src="data:image/png;base64,{{ plot_url3 }}"
+      alt="Portfolio Performance"
+    />
     {% endif %}
-</body>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  </body>
 </html>
