@@ -1,4 +1,9 @@
-from flask import Flask, render_template, request
+import os
+
+import google.generativeai as genai
+
+from flask import Flask, render_template, request, Response, jsonify, stream_with_context
+from dotenv import load_dotenv
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -9,7 +14,61 @@ from scipy.stats import norm
 from io import BytesIO
 import base64
 
+load_dotenv()
+
+genai.configure(api_key = os.environ.get('GEMINI_API_KEY'))
+
 app = Flask(__name__)
+
+
+
+# Create the model
+# See https://ai.google.dev/api/python/google/generativeai/GenerativeModel
+generation_config = {
+  "temperature": 1,
+  "top_p": 0.95,
+  "top_k": 64,
+  "max_output_tokens": 8192,
+  "response_mime_type": "text/plain",
+}
+
+safety_settings = [
+    {
+        "category": "HARM_CATEGORY_HARASSMENT",
+        "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    },
+    {
+        "category": "HARM_CATEGORY_HATE_SPEECH",
+        "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    },
+    {
+        "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+        "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    },
+    {
+        "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+        "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    }
+]
+
+model = genai.GenerativeModel(
+  model_name="gemini-1.5-pro",
+  generation_config=generation_config,
+  safety_settings = safety_settings
+  # See https://ai.google.dev/gemini-api/docs/safety-settings
+)
+
+chat_session = model.start_chat(
+  history=[
+  ]
+)
+
+response = chat_session.send_message("INSERT_INPUT_HERE")
+
+print(response.text)
+
+
+
 
 # Function to get ETF price data
 def get_etf_price_data():
@@ -299,9 +358,64 @@ def index():
         port_rets = res[2]
         plot_url1, plot_url2, plot_url3 = engine.performance_analytics(port_weights, port_asset_rets, port_rets)
         return render_template('index.html', plot_url1=plot_url1, plot_url2=plot_url2, plot_url3=plot_url3) #렌더링
-    return render_template('index.html')    
-    
+    return render_template('index.html')
     
 
+
+@app.route("/generate_text", methods=["GET", "POST"])
+def generate_text():
+    if request.method == "POST":
+        input_data = request.get_json()
+        prompt = input_data["prompt"]
+        model = genai.GenerativeModel(model_name="gemini-pro",
+                                      generation_config=generation_config,
+                                      safety_settings=safety_settings)
+        text_result = model.generate_content(prompt)
+        return jsonify({
+            "status": {
+                "code": 200,
+                "message": "Success generate text",
+            },
+            "data": {
+                "result": text_result.text,
+            }
+        }), 200
+    else:
+        return jsonify({
+            "status": {
+                "code": 405,
+                "message": "Method not allowed"
+            },
+            "data": None
+        }), 405
+
+
+@app.route("/generate_text_stream", methods=["GET", "POST"])
+def generate_text_stream():
+    if request.method == "POST":
+        input_data = request.get_json()
+        prompt = input_data["prompt"]
+        model = genai.GenerativeModel(model_name="gemini-pro",
+                                      generation_config=generation_config,
+                                      safety_settings=safety_settings)
+
+        def generate_stream():
+            response = model.generate_content(prompt, stream=True)
+            for chunk in response:
+                print(chunk.text)
+                yield chunk.text + "\n"
+
+        return Response(stream_with_context(generate_stream()), mimetype="text/plain")
+    else:
+        return jsonify({
+            "status": {
+                "code": 405,
+                "message": "Method not allowed"
+            },
+            "data": None
+        }), 405
+
+
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host="127.0.0.1", port=int(os.environ.get("PORT", 5000)))
