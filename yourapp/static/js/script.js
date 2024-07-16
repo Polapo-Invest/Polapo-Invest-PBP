@@ -19,7 +19,7 @@ async function sendMessage() {
   const generatedText = await generateText(prompt);
   addMessage(generatedText, 'bot');
 
-  hideTypingIndicator(); 
+  hideTypingIndicator();
 }
 
 async function generateText(prompt) {

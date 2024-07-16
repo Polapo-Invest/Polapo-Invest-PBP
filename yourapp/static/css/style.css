@@ -61,6 +61,8 @@ input[type="text"] {
     border-radius: 8px 0 0 8px;
     font-size: 1rem;
     outline: none;
+    color: black;
+    z-index: 2; /* Ensure it's above other elements */
 }
 
 .send-button {
