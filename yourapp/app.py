@@ -21,55 +21,6 @@ genai.configure(api_key = os.environ.get('GEMINI_API_KEY'))
 app = Flask(__name__)
 
 
-
-# Create the model
-# See https://ai.google.dev/api/python/google/generativeai/GenerativeModel
-generation_config = {
-  "temperature": 1,
-  "top_p": 0.95,
-  "top_k": 64,
-  "max_output_tokens": 8192,
-  "response_mime_type": "text/plain",
-}
-
-safety_settings = [
-    {
-        "category": "HARM_CATEGORY_HARASSMENT",
-        "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-    },
-    {
-        "category": "HARM_CATEGORY_HATE_SPEECH",
-        "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-    },
-    {
-        "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-        "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-    },
-    {
-        "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-        "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-    }
-]
-
-model = genai.GenerativeModel(
-  model_name="gemini-1.5-pro",
-  generation_config=generation_config,
-  safety_settings = safety_settings
-  # See https://ai.google.dev/gemini-api/docs/safety-settings
-)
-
-chat_session = model.start_chat(
-  history=[
-  ]
-)
-
-response = chat_session.send_message("INSERT_INPUT_HERE")
-
-print(response.text)
-
-
-
-
 # Function to get ETF price data
 def get_etf_price_data():
     tickers = ['AAPL', 'MSFT', 'NVDA', 'GOOG', 'XLK']
@@ -344,20 +295,52 @@ class GEMTU772:
         plot_url3 = base64.b64encode(img.getvalue()).decode('utf8')
 
         return plot_url1, plot_url2, plot_url3
+    
+    
 
-#라우트 함수 
+# Create the model
+# See https://ai.google.dev/api/python/google/generativeai/GenerativeModel
+generation_config = {
+  "temperature": 1,
+  "top_p": 0.95,
+  "top_k": 64,
+  "max_output_tokens": 8192,
+  "response_mime_type": "text/plain",
+}
+
+safety_settings = [
+    {
+        "category": "HARM_CATEGORY_HARASSMENT",
+        "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    },
+    {
+        "category": "HARM_CATEGORY_HATE_SPEECH",
+        "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    },
+    {
+        "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+        "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    },
+    {
+        "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+        "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    }
+]
+    
+
+#Route function
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        cs_model = request.form.get('cs_model') #cs 모델 선택
-        ts_model = request.form.get('ts_model') #ts 모델 선택
-        engine = GEMTU772(df)  #벡테이스팅 수행
-        res = engine.run(cs_model=cs_model, ts_model=ts_model, cost=0.0005) #run메서드
+        cs_model = request.form.get('cs_model') #cs model selection
+        ts_model = request.form.get('ts_model') #ts model selection
+        engine = GEMTU772(df)  #Run backtesting
+        res = engine.run(cs_model=cs_model, ts_model=ts_model, cost=0.0005) # run method
         port_weights = res[0]
         port_asset_rets = res[1]
         port_rets = res[2]
         plot_url1, plot_url2, plot_url3 = engine.performance_analytics(port_weights, port_asset_rets, port_rets)
-        return render_template('index.html', plot_url1=plot_url1, plot_url2=plot_url2, plot_url3=plot_url3) #렌더링
+        return render_template('index.html', plot_url1=plot_url1, plot_url2=plot_url2, plot_url3=plot_url3) # Rendering
     return render_template('index.html')
     
 
@@ -367,7 +350,7 @@ def generate_text():
     if request.method == "POST":
         input_data = request.get_json()
         prompt = input_data["prompt"]
-        model = genai.GenerativeModel(model_name="gemini-pro",
+        model = genai.GenerativeModel(model_name="gemini-1.5-pro",
                                       generation_config=generation_config,
                                       safety_settings=safety_settings)
         text_result = model.generate_content(prompt)
@@ -395,7 +378,7 @@ def generate_text_stream():
     if request.method == "POST":
         input_data = request.get_json()
         prompt = input_data["prompt"]
-        model = genai.GenerativeModel(model_name="gemini-pro",
+        model = genai.GenerativeModel(model_name="gemini-1.5-pro",
                                       generation_config=generation_config,
                                       safety_settings=safety_settings)
 
