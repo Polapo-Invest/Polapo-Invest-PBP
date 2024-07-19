@@ -20,7 +20,6 @@ def get_etf_price_data():
 
 df = get_etf_price_data()
 
-print(df)
 
 # Portfolio Backtesting Engine Class
 class GEMTU772:
@@ -289,32 +288,6 @@ class GEMTU772:
     # Performance Analytics Function
     def performance_analytics(self, port_weights, port_asset_rets, port_rets, qs_report=False):
         
-        # Investment Weight by Asset
-        plt.figure(figsize=(12, 7))
-        port_weights['Cash'] = 1 - port_weights.sum(axis=1)
-        plt.stackplot(port_weights.index, port_weights.T, labels=port_weights.columns)
-        plt.title('Portfolio Weights')
-        plt.xlabel('Date')
-        plt.ylabel('Weights')
-        plt.legend(loc='upper left')
-        plt.show()
-
-        # Accumulated return by asset
-        plt.figure(figsize=(12, 7))
-        plt.plot((1 + port_asset_rets).cumprod() - 1)
-        plt.title('Underlying Asset Performance')
-        plt.xlabel('Date')
-        plt.ylabel('Returns')
-        plt.legend(port_asset_rets.columns, loc='upper left')
-        plt.show()
-
-        # Portfolio Accumulated Return
-        plt.figure(figsize=(12, 7))
-        plt.plot((1 + port_rets).cumprod() - 1)
-        plt.title('Portfolio Performance')
-        plt.xlabel('Date')
-        plt.ylabel('Returns')
-        plt.show()
 
         # QuantStats Strategy Tearsheet
         if qs_report == True:

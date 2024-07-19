@@ -1,7 +1,5 @@
 import os
-
 import google.generativeai as genai
-
 from flask import Flask, render_template, request, Response, jsonify, stream_with_context
 from dotenv import load_dotenv
 import numpy as np
@@ -13,7 +11,9 @@ from scipy.optimize import minimize
 from scipy.stats import norm
 from io import BytesIO
 import base64
-from PIL import Image
+import matplotlib
+
+matplotlib.use('Agg') #Engine reset issue solution code (TkAgg->Agg)
 
 load_dotenv()
 
@@ -258,44 +258,47 @@ class GEMTU772:
         return port_weights, port_asset_rets, port_rets
 
     def performance_analytics(self, port_weights, port_asset_rets, port_rets):
-        img = BytesIO()
-        
-        plt.figure(figsize=(12, 7))
-        port_weights['Cash'] = 1 - port_weights.sum(axis=1)
-        plt.stackplot(port_weights.index, port_weights.T, labels=port_weights.columns)
-        plt.title('Portfolio Weights')
-        plt.xlabel('Date')
-        plt.ylabel('Weights')
-        plt.legend(loc='upper left')
-        plt.savefig(img, format='png')
-        plt.close()
-        img.seek(0)
-        plot_url1 = base64.b64encode(img.getvalue()).decode('utf8')
+            img = BytesIO()
+            
+            # Portfolio Weights Plot
+            plt.figure(figsize=(12, 7))
+            port_weights['Cash'] = 1 - port_weights.sum(axis=1)
+            plt.stackplot(port_weights.index, port_weights.T, labels=port_weights.columns)
+            plt.title('Portfolio Weights')
+            plt.xlabel('Date')
+            plt.ylabel('Weights')
+            plt.legend(loc='upper left')
+            plt.savefig(img, format='png')
+            plt.close()
+            img.seek(0)
+            plot_url1 = base64.b64encode(img.getvalue()).decode('utf8')
 
-        img = BytesIO()
-        plt.figure(figsize=(12, 7))
-        plt.plot((1 + port_asset_rets).cumprod() - 1)
-        plt.title('Underlying Asset Performance')
-        plt.xlabel('Date')
-        plt.ylabel('Returns')
-        plt.legend(port_asset_rets.columns, loc='upper left')
-        plt.savefig(img, format='png')
-        plt.close()
-        img.seek(0)
-        plot_url2 = base64.b64encode(img.getvalue()).decode('utf8')
+            img = BytesIO()
+            # Underlying Asset Performance Plot
+            plt.figure(figsize=(12, 7))
+            plt.plot((1 + port_asset_rets).cumprod() - 1)
+            plt.title('Underlying Asset Performance')
+            plt.xlabel('Date')
+            plt.ylabel('Returns')
+            plt.legend(port_asset_rets.columns, loc='upper left')
+            plt.savefig(img, format='png')
+            plt.close()
+            img.seek(0)
+            plot_url2 = base64.b64encode(img.getvalue()).decode('utf8')
 
-        img = BytesIO()
-        plt.figure(figsize=(12, 7))
-        plt.plot((1 + port_rets).cumprod() - 1)
-        plt.title('Portfolio Performance')
-        plt.xlabel('Date')
-        plt.ylabel('Returns')
-        plt.savefig(img, format='png')
-        plt.close()
-        img.seek(0)
-        plot_url3 = base64.b64encode(img.getvalue()).decode('utf8')
+            img = BytesIO()
+            # Portfolio Performance Plot
+            plt.figure(figsize=(12, 7))
+            plt.plot((1 + port_rets).cumprod() - 1)
+            plt.title('Portfolio Performance')
+            plt.xlabel('Date')
+            plt.ylabel('Returns')
+            plt.savefig(img, format='png')
+            plt.close()
+            img.seek(0)
+            plot_url3 = base64.b64encode(img.getvalue()).decode('utf8')
 
-        return plot_url1, plot_url2, plot_url3
+            return plot_url1, plot_url2, plot_url3
     
     
 
@@ -333,23 +336,22 @@ safety_settings = [
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        cs_model = request.form.get('cs_model') #cs model selection
-        ts_model = request.form.get('ts_model') #ts model selection
-        engine = GEMTU772(df)  #Run backtesting
-        res = engine.run(cs_model=cs_model, ts_model=ts_model, cost=0.0005) # run method
+        cs_model = request.form.get('cs_model')  # cs model selection
+        ts_model = request.form.get('ts_model')  # ts model selection
+        engine = GEMTU772(df)  # Run backtesting
+        res = engine.run(cs_model=cs_model, ts_model=ts_model, cost=0.0005)  # run method
         port_weights = res[0]
         port_asset_rets = res[1]
         port_rets = res[2]
         plot_url1, plot_url2, plot_url3 = engine.performance_analytics(port_weights, port_asset_rets, port_rets)
-        return render_template('index.html', plot_url1=plot_url1, plot_url2=plot_url2, plot_url3=plot_url3) # Rendering
+        return render_template('index.html', plot_url1=plot_url1, plot_url2=plot_url2, plot_url3=plot_url3)  # Rendering
     return render_template('index.html')
+
     
-
-
 @app.route("/generate_text", methods=["GET", "POST"])
 def generate_text():
     if request.method == "POST":
-        input_data = request.get_json() # !!!!!!!!!
+        input_data = request.get_json()
         prompt = input_data["prompt"]
         model = genai.GenerativeModel(model_name="gemini-1.5-pro",
                                       generation_config=generation_config,
@@ -374,25 +376,17 @@ def generate_text():
         }), 405
 
 
-def process_image_data(img_data):
-    img_bytes = base64.b64decode(img_data)
-    img = Image.open(BytesIO(img_bytes))
-    return img
-
-
 @app.route("/generate_text_stream", methods=["GET", "POST"])
 def generate_text_stream():
     if request.method == "POST":
         input_data = request.get_json()
         prompt = input_data["prompt"]
-        image_data = input_data.get("images", [])
-        images = [process_image_data(img) for img in image_data]
         model = genai.GenerativeModel(model_name="gemini-1.5-pro",
                                       generation_config=generation_config,
                                       safety_settings=safety_settings)
 
         def generate_stream():
-            response = model.generate_content([prompt] + images, stream=True)
+            response = model.generate_content(prompt, stream=True)
             for chunk in response:
                 print(chunk.text)
                 yield chunk.text + "\n"
