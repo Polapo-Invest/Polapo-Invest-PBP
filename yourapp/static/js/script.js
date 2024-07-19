@@ -4,10 +4,14 @@ const typingIndicator = document.getElementById("typingIndicator");
 const sidebar = document.getElementById("sidebar");
 const sidebarContent = document.getElementById("sidebarContent");
 
+
+const imageContainer = document.getElementById("imageContainer");
+
+
 async function sendMessage() {
   const prompt = promptInput.value.trim();
   if (!prompt) {
-    alert("Please enter a message.");
+    alert("Please enter a message."); // Browser pop up message
     return;
   }
 
@@ -16,20 +20,25 @@ async function sendMessage() {
 
   showTypingIndicator();
 
-  const generatedText = await generateText(prompt);
+
+  // Collect image data
+  const images = Array.from(imageContainer.querySelectorAll('.img-preview')).map(img => img.src.split(',')[1]); // Extract base64 data
+
+
+  const generatedText = await generateText(prompt, images);
   addMessage(generatedText, 'bot');
 
   hideTypingIndicator();
 }
 
-async function generateText(prompt) {
+async function generateText(prompt, images) {
   try {
     const response = await fetch("http://127.0.0.1:5000/generate_text_stream", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ prompt }),
+      body: JSON.stringify({ prompt, images }),
     });
 
     if (!response.ok) {
@@ -99,3 +108,72 @@ function toggleSidebar() {
 }
 
 window.onload = () => addMessage("Hello! How can I assist you today?", 'bot');
+
+
+
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const textInput = document.getElementById('userInput');
+  // const imageContainer = document.getElementById('imageContainer');
+  // const runButton = document.getElementById('runButton');
+
+  textInput.addEventListener('paste', (event) => {
+      const items = (event.clipboardData || window.clipboardData).items;
+      for (const item of items) {
+          if (item.type.indexOf('image') !== -1) {
+              const file = item.getAsFile();
+              const reader = new FileReader();
+              reader.onload = (event) => {
+                displayImage(event.target.result);
+                //! event.target.result == src
+              };
+              reader.readAsDataURL(file);
+              event.preventDefault();
+          }
+      }
+  });
+
+  function displayImage(src) {
+      const imgContainer = document.createElement('div');
+      imgContainer.classList.add('img-preview-container');
+      
+      const img = document.createElement('img');
+      img.src = src;
+      img.classList.add('img-preview');
+      
+      const removeButton = document.createElement('button');
+      removeButton.classList.add('remove-button');
+      removeButton.textContent = '✖';
+      removeButton.addEventListener('click', () => {
+          imgContainer.remove();
+          checkImageContainerVisibility();
+      });
+
+      imgContainer.appendChild(img);
+      imgContainer.appendChild(removeButton);
+      imageContainer.appendChild(imgContainer);
+      checkImageContainerVisibility();
+    
+      const all_images = imageContainer.querySelectorAll('.img-preview-container');
+      all_images.forEach(img=>img.style.width=`${100/all_images.length-10}%`);
+  }
+
+  function checkImageContainerVisibility() {
+      if (imageContainer.children.length > 0) {
+          imageContainer.classList.remove('hidden');
+      } else {
+          imageContainer.classList.add('hidden');
+      }
+  }
+
+  /*runButton.addEventListener('click', () => {
+      console.log('Run button clicked');
+  });*/
+
+  // Initial check to hide image container if empty
+  checkImageContainerVisibility();
+});

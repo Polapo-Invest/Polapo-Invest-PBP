@@ -254,3 +254,52 @@ img {
 
 
 
+.image-container {
+    width: 100%;
+    /*padding: 12px 18px;*/
+
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    background-color: #fff;
+    /*border: 1px solid #444;*/
+    min-height: 50px;
+    max-height: 70px;
+    margin-bottom: 10px;
+
+    border: 2px solid #e2e2e2;
+    border-radius: 8px 8px 8px 8px;
+}
+
+.hidden {
+    display: none;
+}
+
+.img-preview-container {
+    position: relative;
+    display: inline-block;
+    max-width: 15%;
+}
+
+.img-preview {
+    max-width: 100%;
+    border-radius: 5px;
+}
+
+.remove-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: #ff4d4d;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    line-height: 20px;
+    text-align: center;
+    padding: 0;
+}

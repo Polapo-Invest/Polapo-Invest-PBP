@@ -13,6 +13,7 @@ from scipy.optimize import minimize
 from scipy.stats import norm
 from io import BytesIO
 import base64
+from PIL import Image
 
 load_dotenv()
 
@@ -348,7 +349,7 @@ def index():
 @app.route("/generate_text", methods=["GET", "POST"])
 def generate_text():
     if request.method == "POST":
-        input_data = request.get_json()
+        input_data = request.get_json() # !!!!!!!!!
         prompt = input_data["prompt"]
         model = genai.GenerativeModel(model_name="gemini-1.5-pro",
                                       generation_config=generation_config,
@@ -373,17 +374,25 @@ def generate_text():
         }), 405
 
 
+def process_image_data(img_data):
+    img_bytes = base64.b64decode(img_data)
+    img = Image.open(BytesIO(img_bytes))
+    return img
+
+
 @app.route("/generate_text_stream", methods=["GET", "POST"])
 def generate_text_stream():
     if request.method == "POST":
         input_data = request.get_json()
         prompt = input_data["prompt"]
+        image_data = input_data.get("images", [])
+        images = [process_image_data(img) for img in image_data]
         model = genai.GenerativeModel(model_name="gemini-1.5-pro",
                                       generation_config=generation_config,
                                       safety_settings=safety_settings)
 
         def generate_stream():
-            response = model.generate_content(prompt, stream=True)
+            response = model.generate_content([prompt] + images, stream=True)
             for chunk in response:
                 print(chunk.text)
                 yield chunk.text + "\n"
