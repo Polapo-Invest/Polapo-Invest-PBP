@@ -153,22 +153,6 @@ a:hover {
     color: #333;
 }
 
-.message-image {
-    max-width: 100px;
-    max-height: 100px;
-    margin: 5px;
-    display: inline-block;
-    object-fit: cover;
-}
-
-/* 입력창과 전송 버튼을 감싸는 컨테이너 스타일링 */
-.input-container {
-    display: flex;
-    align-items: center;
-    margin: 0 auto;
-    max-width: 600px;
-}
-
 input[type="text"] {
     flex: 1;
     padding: 12px 18px;
@@ -285,7 +269,7 @@ input[type="text"] {
     overflow-x: hidden;
     transition: 0.5s;
     padding-top: 60px;
-    z-index: 1000; /* Ensure it appears above other content */
+    color: white;
 }
 
 .sidebar-content {

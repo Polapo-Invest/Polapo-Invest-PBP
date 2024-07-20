@@ -12,8 +12,9 @@ from scipy.stats import norm
 from io import BytesIO
 import base64
 import matplotlib
-import tempfile
 from PIL import Image
+import tempfile
+
 
 matplotlib.use('Agg') # Engine reset issue solution code (TkAgg->Agg)
 
@@ -353,11 +354,12 @@ def generate_text():
             },
             "data": None
         }), 405
-        
+
 def process_image_data(img_data):
     img_bytes = base64.b64decode(img_data)
     img = Image.open(BytesIO(img_bytes))
     return img
+
 
 @app.route("/generate_text_stream", methods=["GET", "POST"])
 def generate_text_stream():

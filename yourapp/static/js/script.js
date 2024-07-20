@@ -3,32 +3,29 @@ const chatContainer = document.getElementById("chatContainer");
 const typingIndicator = document.getElementById("typingIndicator");
 const sidebar = document.getElementById("sidebar");
 const sidebarContent = document.getElementById("sidebarContent");
-
-
 const imageContainer = document.getElementById("imageContainer");
-
 
 async function sendMessage() {
   const prompt = promptInput.value.trim();
-  if (!prompt) {
-    alert("Please enter a message."); // Browser pop up message
+  if (!prompt && imageContainer.children.length === 0) {
+    alert("Please enter a message or add an image.");  // Browser pop up message
     return;
   }
 
-  addMessage(prompt, 'user');
+  // Collect image data
+  const images = Array.from(imageContainer.querySelectorAll('.img-preview'))
+    .map(img => img.src.split(',')[1]); // Extract base64 data
+
+  addMessage(prompt, 'user', images);
   promptInput.value = "";
 
   showTypingIndicator();
-
-
-  // Collect image data
-  const images = Array.from(imageContainer.querySelectorAll('.img-preview')).map(img => img.src.split(',')[1]); // Extract base64 data
-
 
   const generatedText = await generateText(prompt, images);
   addMessage(generatedText, 'bot');
 
   hideTypingIndicator();
+  //clearImagePreviews(); Add this code if you want the image in the imageContainer disappear if the user sends the image.
 }
 
 async function generateText(prompt, images) {
@@ -57,7 +54,7 @@ async function generateText(prompt, images) {
         isFinished = true;
         break;
       }
-      generatedTextContent += decoder.decode(value, {stream: true});
+      generatedTextContent += decoder.decode(value, { stream: true });
     }
 
     return generatedTextContent;
@@ -67,15 +64,31 @@ async function generateText(prompt, images) {
   }
 }
 
-function addMessage(text, type) {
+function addMessage(text, type, images = []) {
   const messageDiv = document.createElement("div");
   messageDiv.className = `message ${type}`;
-  messageDiv.innerHTML = `<div class="message-bubble fadeIn">${text}</div>`;
+
+  const messageContent = document.createElement("div");
+  messageContent.className = "message-bubble fadeIn";
+  messageContent.innerHTML = `<p>${text}</p>`;
+
+  images.forEach(src => {
+    const img = document.createElement("img");
+    img.src = `data:image/png;base64,${src}`;
+    img.classList.add("message-image");
+    messageContent.appendChild(img);
+  });
+
+  messageDiv.appendChild(messageContent);
   chatContainer.appendChild(messageDiv);
-
   chatContainer.scrollTop = chatContainer.scrollHeight;
+}
 
-  hideTypingIndicator();
+function clearImagePreviews() {
+  while (imageContainer.firstChild) {
+    imageContainer.removeChild(imageContainer.firstChild);
+  }
+  checkImageContainerVisibility();
 }
 
 let typingTimeout;
@@ -87,13 +100,13 @@ function showTypingIndicator() {
 
 function hideTypingIndicator() {
   typingTimeout = setTimeout(() => {
-      typingIndicator.style.display = "none";
+    typingIndicator.style.display = "none";
   }, 1000);
 }
 
 function handleKeyPress(event) {
   if (event.key === "Enter") {
-      sendMessage();
+    sendMessage();
   }
 }
 
@@ -109,70 +122,56 @@ function toggleSidebar() {
 
 window.onload = () => addMessage("Hello! How can I assist you today?", 'bot');
 
-
-
-
-
-
-
-
 document.addEventListener('DOMContentLoaded', () => {
   const textInput = document.getElementById('userInput');
-  // const imageContainer = document.getElementById('imageContainer');
-  // const runButton = document.getElementById('runButton');
 
   textInput.addEventListener('paste', (event) => {
-      const items = (event.clipboardData || window.clipboardData).items;
-      for (const item of items) {
-          if (item.type.indexOf('image') !== -1) {
-              const file = item.getAsFile();
-              const reader = new FileReader();
-              reader.onload = (event) => {
-                displayImage(event.target.result);
-                //! event.target.result == src
-              };
-              reader.readAsDataURL(file);
-              event.preventDefault();
-          }
+    const items = (event.clipboardData || window.clipboardData).items;
+    for (const item of items) {
+      if (item.type.indexOf('image') !== -1) {
+        const file = item.getAsFile();
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          displayImage(event.target.result);
+        };
+        reader.readAsDataURL(file);
+        event.preventDefault();
       }
+    }
   });
 
   function displayImage(src) {
-      const imgContainer = document.createElement('div');
-      imgContainer.classList.add('img-preview-container');
-      
-      const img = document.createElement('img');
-      img.src = src;
-      img.classList.add('img-preview');
-      
-      const removeButton = document.createElement('button');
-      removeButton.classList.add('remove-button');
-      removeButton.textContent = '✖';
-      removeButton.addEventListener('click', () => {
-          imgContainer.remove();
-          checkImageContainerVisibility();
-      });
+    const imgContainer = document.createElement('div');
+    imgContainer.classList.add('img-preview-container');
 
-      imgContainer.appendChild(img);
-      imgContainer.appendChild(removeButton);
-      imageContainer.appendChild(imgContainer);
+    const img = document.createElement('img');
+    img.src = src;
+    img.classList.add('img-preview');
+
+    const removeButton = document.createElement('button');
+    removeButton.classList.add('remove-button');
+    removeButton.textContent = '✖';
+    removeButton.addEventListener('click', () => {
+      imgContainer.remove();
       checkImageContainerVisibility();
-    
-      const all_images = imageContainer.querySelectorAll('.img-preview-container');
-      all_images.forEach(img=>img.style.width=`${100/all_images.length-10}%`);
+    });
+
+    imgContainer.appendChild(img);
+    imgContainer.appendChild(removeButton);
+    imageContainer.appendChild(imgContainer);
+    checkImageContainerVisibility();
+
+    const all_images = imageContainer.querySelectorAll('.img-preview-container');
+    all_images.forEach(img => img.style.width = `${100 / all_images.length - 10}%`);
   }
 
   function checkImageContainerVisibility() {
-      if (imageContainer.children.length > 0) {
-          imageContainer.classList.remove('hidden');
-      } else {
-          imageContainer.classList.add('hidden');
-      }
+    if (imageContainer.children.length > 0) {
+      imageContainer.classList.remove('hidden');
+    } else {
+      imageContainer.classList.add('hidden');
+    }
   }
-
-  /*runButton.addEventListener('click', () => {
-      console.log('Run button clicked');
-  });*/
 
   // Initial check to hide image container if empty
   checkImageContainerVisibility();
