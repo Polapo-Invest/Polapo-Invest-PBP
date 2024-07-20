@@ -54,6 +54,15 @@ body {
     color: #333;
 }
 
+
+.message-image {
+    max-width: 100px; /* Set the maximum width for the image */
+    max-height: 100px; /* Set the maximum height for the image */
+    margin: 5px;
+    display: inline-block;
+    object-fit: cover; /* Ensures the image retains its aspect ratio */
+}
+
 input[type="text"] {
     width: calc(100% - 110px);
     padding: 12px 18px;
