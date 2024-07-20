@@ -172,11 +172,10 @@ input[type="text"] {
     height: 100%;
     width: 100%;
     max-width: 500px;
-    background-color: #f4f4f4;
+    background-color: none;
     overflow-x: hidden;
     transition: 0.5s;
     padding-top: 60px;
-    color: white;
 }
 
 .sidebar-content {
