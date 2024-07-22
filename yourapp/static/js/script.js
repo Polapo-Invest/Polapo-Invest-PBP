@@ -176,3 +176,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial check to hide image container if empty
   checkImageContainerVisibility();
 });
+
+
+
+
+
+
+// Backtest Result and Detailed Report buttons
+document.getElementById('backtestResultButton').addEventListener('click', function() {
+  document.getElementById('backtestResult').classList.add('active');
+  document.getElementById('detailedReport').classList.remove('active');
+  this.classList.add('active');
+  document.getElementById('detailedReportButton').classList.remove('active');
+});
+
+document.getElementById('detailedReportButton').addEventListener('click', function() {
+  window.location.href = "/report_viewer";
+});

@@ -358,3 +358,49 @@ img {
     text-align: center;
     padding: 0;
 }
+
+
+
+
+
+/*the backtest result and detailed report buttons */
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.content {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.content-box {
+    display: none;
+    flex-direction: row;
+}
+
+.content-box.active {
+    display: flex;
+}
+
+.image {
+    width: 200px;
+    height: 150px;
+    border: 1px solid #000;
+    margin-right: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.report {
+    width: 600px;
+    height: 400px;
+    border: 1px solid #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

@@ -270,6 +270,35 @@ class GEMTU772:
     
 
     def performance_analytics(self, port_rets):
+        engine = GEMTU772(df) # Run backtesting
+        cs_model = request.form.get('cs_model') # cs model selection
+        ts_model = request.form.get('ts_model') # ts model selection
+        res = engine.run(cs_model=cs_model, ts_model=ts_model, cost=0.0005)
+        port_weights, port_asset_rets, port_rets = res
+        
+        plt.figure(figsize=(12, 7))
+        port_weights['Cash'] = 1 - port_weights.sum(axis=1)
+        plt.stackplot(port_weights.index, port_weights.T, labels=port_weights.columns)
+        plt.title('Portfolio Weights')
+        plt.xlabel('Date')
+        plt.ylabel('Weights')
+        plt.legend(loc='upper left')
+
+        # Accumulated return by asset
+        plt.figure(figsize=(12, 7))
+        plt.plot((1 + port_asset_rets).cumprod() - 1)
+        plt.title('Underlying Asset Performance')
+        plt.xlabel('Date')
+        plt.ylabel('Returns')
+        plt.legend(port_asset_rets.columns, loc='upper left')
+
+        # Portfolio Accumulated Return
+        plt.figure(figsize=(12, 7))
+        plt.plot((1 + port_rets).cumprod() - 1)
+        plt.title('Portfolio Performance')
+        plt.xlabel('Date')
+        plt.ylabel('Returns')
+                
         if not isinstance(port_rets.index, pd.DatetimeIndex):
             port_rets.index = pd.to_datetime(port_rets.index)
 
@@ -280,6 +309,7 @@ class GEMTU772:
 
         return report_html
     
+
     
 # Create the model
 # See https://ai.google.dev/api/python/google/generativeai/GenerativeModel
