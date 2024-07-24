@@ -55,7 +55,7 @@ async function sendMessage() {
 
 async function generateText(prompt, images) {
   try {
-    const response = await fetch("http://127.0.0.1:5000/generate_text_stream", {
+    const response = await fetch("https://polapo-invest.web.app/generate_text_stream", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
