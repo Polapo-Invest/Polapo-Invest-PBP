@@ -356,7 +356,17 @@ def report():
 
     return render_template('index.html')
 
+@app.route('/load_report')
+def load_report():
+    cs_model = request.args.get('cs_model')
+    ts_model = request.args.get('ts_model')
+    engine = GEMTU772(df) # Run backtesting
+    res = engine.run(cs_model=cs_model, ts_model=ts_model, cost=0.0005)
+    port_weights, port_asset_rets, port_rets = res
 
+    report_html = engine.performance_analytics(port_rets)
+    
+    return jsonify({"html": render_template('report_viewer.html', report_html=report_html)})
 
 @app.route("/generate_text", methods=["GET", "POST"])
 def generate_text():

@@ -191,5 +191,16 @@ document.getElementById('backtestResultButton').addEventListener('click', functi
 });
 
 document.getElementById('detailedReportButton').addEventListener('click', function() {
-  window.location.href = "/report_viewer";
+  const cs_model = document.getElementById("cs_model").value;
+  const ts_model = document.getElementById("ts_model").value;
+
+  fetch(`/load_report?cs_model=${cs_model}&ts_model=${ts_model}`)
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('detailedReport').innerHTML = data.html;
+      document.getElementById('detailedReport').classList.add('active');
+      document.getElementById('backtestResult').classList.remove('active');
+      this.classList.add('active');
+      document.getElementById('backtestResultButton').classList.remove('active');
+    });
 });

@@ -4,14 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Portfolio Backtesting</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/style.css') }}"
-    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   </head>
   <body>
     <h1>Portfolio Backtesting</h1>
-    <form method="post" action="/">
+    <form method="post" action="/generate_report">
         <label for="cs_model">Choose Cross-Sectional Model:</label>
         <select id="cs_model" name="cs_model">
             <option value="EW">Equal Weight (EW)</option>
@@ -44,30 +41,7 @@
             <div class="image" id="image3">Image 3</div>
         </div>
         <div id="detailedReport" class="content-box">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Portfolio Backtesting</title>
-            <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Portfolio Backtesting</title>
-                <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-            </head>
-            <body>
-                <div class="report-container">
-                    <h1>Portfolio Report</h1>
-                    <div class="report-content">
-                        {{ report_html | safe }}
-                    </div>
-                    <a href="/">Back to Selection</a>
-                </div>
-            </body>
-            </html>
-                </div>
+        </div>
     </div>
 
     <div class="sidebar" id="sidebar">
@@ -94,3 +68,4 @@
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
  </body>
 </html>
+
