@@ -7,9 +7,8 @@ import base64
 import matplotlib
 from PIL import Image
 
-from .Backtesting_Engine import GEMTU772
-from .ETF_Functions import *
-
+from Backtesting_Engine import GEMTU772
+from ETF_Functions import *
 
 matplotlib.use('Agg') # Engine reset issue solution code (TkAgg->Agg)
 
