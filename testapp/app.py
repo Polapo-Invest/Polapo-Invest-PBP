@@ -128,3 +128,6 @@ def generate_text_stream():
             },
             "data": None
         }), 405
+
+if __name__ == '__main__':
+    app.run(debug=True)
