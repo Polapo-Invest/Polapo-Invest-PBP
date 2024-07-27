@@ -1,28 +1,3 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyCN5OgUOWTm9WgzkM-LMgBqpIGJz95SrIY",
-  authDomain: "polapo-invest.firebaseapp.com",
-  projectId: "polapo-invest",
-  storageBucket: "polapo-invest.appspot.com",
-  messagingSenderId: "631377533063",
-  appId: "1:631377533063:web:b201c2f418d08cb18f8022",
-  measurementId: "G-34WHX8M3M0"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-
-
-
-
 const promptInput = document.getElementById("userInput");
 const chatContainer = document.getElementById("chatContainer");
 const typingIndicator = document.getElementById("typingIndicator");
