@@ -269,13 +269,8 @@ class GEMTU772:
         return port_weights, port_asset_rets, port_rets
     
 
-    def performance_analytics(self, port_rets):
-        engine = GEMTU772(df) # Run backtesting
-        cs_model = request.form.get('cs_model') # cs model selection
-        ts_model = request.form.get('ts_model') # ts model selection
-        res = engine.run(cs_model=cs_model, ts_model=ts_model, cost=0.0005)
-        port_weights, port_asset_rets, port_rets = res
-        
+    def performance_analytics(self, port_weights, port_asset_rets, port_rets):
+        # Generate and save Investment Weight by Asset graph
         plt.figure(figsize=(12, 7))
         port_weights['Cash'] = 1 - port_weights.sum(axis=1)
         plt.stackplot(port_weights.index, port_weights.T, labels=port_weights.columns)
@@ -283,32 +278,45 @@ class GEMTU772:
         plt.xlabel('Date')
         plt.ylabel('Weights')
         plt.legend(loc='upper left')
+        
+        buf = BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        port_weights_img = base64.b64encode(buf.getvalue()).decode('utf-8')
+        buf.close()
+        plt.close()
 
-        # Accumulated return by asset
+        # Generate and save Accumulated return by asset graph
         plt.figure(figsize=(12, 7))
         plt.plot((1 + port_asset_rets).cumprod() - 1)
         plt.title('Underlying Asset Performance')
         plt.xlabel('Date')
         plt.ylabel('Returns')
         plt.legend(port_asset_rets.columns, loc='upper left')
+        
+        buf = BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        asset_performance_img = base64.b64encode(buf.getvalue()).decode('utf-8')
+        buf.close()
+        plt.close()
 
-        # Portfolio Accumulated Return
+        # Generate and save Portfolio Accumulated Return graph
         plt.figure(figsize=(12, 7))
         plt.plot((1 + port_rets).cumprod() - 1)
         plt.title('Portfolio Performance')
         plt.xlabel('Date')
         plt.ylabel('Returns')
-                
-        if not isinstance(port_rets.index, pd.DatetimeIndex):
-            port_rets.index = pd.to_datetime(port_rets.index)
+        
+        buf = BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        portfolio_performance_img = base64.b64encode(buf.getvalue()).decode('utf-8')
+        buf.close()
+        plt.close()
 
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.html') as tmp_file:
-            qs.reports.html(port_rets, output=tmp_file.name)
-            tmp_file.seek(0)
-            report_html = tmp_file.read().decode('utf-8')
+        return port_weights_img, asset_performance_img, portfolio_performance_img
 
-        return report_html
-    
 
     
 # Create the model
@@ -350,24 +358,67 @@ def report():
         res = engine.run(cs_model=cs_model, ts_model=ts_model, cost=0.0005)
         port_weights, port_asset_rets, port_rets = res
 
-        report_html = engine.performance_analytics(port_rets)
+        if not isinstance(port_rets.index, pd.DatetimeIndex):
+            port_rets.index = pd.to_datetime(port_rets.index)
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.html') as tmp_file:
+            qs.reports.html(port_rets, output=tmp_file.name)
+            tmp_file.seek(0)
+            report_html = tmp_file.read().decode('utf-8')
 
         return render_template('report_viewer.html', report_html=report_html)
 
     return render_template('index.html')
 
-@app.route('/load_report')
-def load_report():
-    cs_model = request.args.get('cs_model')
-    ts_model = request.args.get('ts_model')
-    engine = GEMTU772(df) # Run backtesting
+@app.route('/generate_html_report', methods=["POST"])
+def generate_html_report():
+    data = request.get_json()
+    if data is None:
+        return jsonify({"error": "No input data provided"}), 400
+    
+    cs_model = data.get('cs_model')
+    ts_model = data.get('ts_model')
+
+    if not cs_model or not ts_model:
+        return jsonify({"error": "Missing model selection"}), 400
+
+    engine = GEMTU772(df)
     res = engine.run(cs_model=cs_model, ts_model=ts_model, cost=0.0005)
     port_weights, port_asset_rets, port_rets = res
 
-    report_html = engine.performance_analytics(port_rets)
-    
-    return jsonify({"html": render_template('report_viewer.html', report_html=report_html)})
+    report_html = ""
+    if not isinstance(port_rets.index, pd.DatetimeIndex):
+        port_rets.index = pd.to_datetime(port_rets.index)
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.html') as tmp_file:
+        qs.reports.html(port_rets, output=tmp_file.name)
+        tmp_file.seek(0)
+        report_html = tmp_file.read().decode('utf-8')
 
+    return jsonify({"report_html": report_html})
+
+@app.route('/Backtest_result', methods=["POST"])
+def generate_report():
+    data = request.get_json()
+    if data is None:
+        return jsonify({"error": "No input data provided"}), 400
+    
+    cs_model = data.get('cs_model')
+    ts_model = data.get('ts_model')
+
+    if not cs_model or not ts_model:
+        return jsonify({"error": "Missing model selection"}), 400
+
+    engine = GEMTU772(df)
+    res = engine.run(cs_model=cs_model, ts_model=ts_model, cost=0.0005)
+    port_weights, port_asset_rets, port_rets = res
+
+    port_weights_img, asset_performance_img, portfolio_performance_img = engine.performance_analytics(port_weights, port_asset_rets, port_rets)
+
+    return jsonify({
+        "port_weights_img": port_weights_img,
+        "asset_performance_img": asset_performance_img,
+        "portfolio_performance_img": portfolio_performance_img
+    })
+    
 @app.route("/generate_text", methods=["GET", "POST"])
 def generate_text():
     if request.method == "POST":
