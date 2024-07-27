@@ -11,6 +11,8 @@ matplotlib = "*"
 yfinance = "*"
 quantstats = "*"
 ipython = "*"
+"google.generativeai" = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
