@@ -30,7 +30,7 @@ async function sendMessage() {
 
 async function generateText(prompt, images) {
   try {
-    const response = await fetch("http://127.0.0.1:5000/generate_text_stream", {
+    const response = await fetch("http://127.0.0.1:8080/generate_text_stream", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -175,4 +175,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initial check to hide image container if empty
   checkImageContainerVisibility();
+});
+
+// Backtest Result and Detailed Report buttons
+document.getElementById('backtestResultButton').addEventListener('click', function() {
+  const cs_model = document.getElementById('cs_model').value;
+  const ts_model = document.getElementById('ts_model').value;
+
+  fetch('/Backtest_result', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ cs_model: cs_model, ts_model: ts_model }),
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        console.error('Error:', data.error);
+        return;
+      }
+      document.getElementById('backtestResult').innerHTML = `
+        <div class="image" id="image1">
+          <img src="data:image/png;base64,${data.port_weights_img}" alt="Portfolio Weights" style="width: 80%; height: auto;">
+        </div>
+        <div class="image" id="image2">
+          <img src="data:image/png;base64,${data.asset_performance_img}" alt="Asset Performance" style="width: 80%; height: auto;">
+        </div>
+        <div class="image" id="image3">
+          <img src="data:image/png;base64,${data.portfolio_performance_img}" alt="Portfolio Performance" style="width: 80%; height: auto;">
+        </div>
+      `;
+      document.getElementById('backtestResult').classList.add('active');
+      document.getElementById('detailedReport').classList.remove('active');
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+});
+
+document.getElementById('detailedReportButton').addEventListener('click', function() {
+  const cs_model = document.getElementById('cs_model').value;
+  const ts_model = document.getElementById('ts_model').value;
+
+  fetch('/generate_html_report', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ cs_model: cs_model, ts_model: ts_model }),
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        console.error('Error:', data.error);
+        return;
+      }
+      document.getElementById('detailedReport').innerHTML = data.report_html;
+      document.getElementById('detailedReport').classList.add('active');
+      document.getElementById('backtestResult').classList.remove('active');
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
 });
