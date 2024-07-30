@@ -13,6 +13,7 @@ quantstats = "*"
 ipython = "*"
 "google.generativeai" = "*"
 python-dotenv = "*"
+seaborn = "*"
 
 [dev-packages]
 

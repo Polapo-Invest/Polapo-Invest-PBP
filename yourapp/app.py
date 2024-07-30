@@ -267,7 +267,6 @@ class GEMTU772:
         port_rets.index = pd.to_datetime(port_rets.index).strftime("%Y-%m-%d")
 
         return port_weights, port_asset_rets, port_rets
-    
 
     def performance_analytics(self, port_weights, port_asset_rets, port_rets):
         # Generate and save Investment Weight by Asset graph
@@ -316,8 +315,6 @@ class GEMTU772:
         plt.close()
 
         return port_weights_img, asset_performance_img, portfolio_performance_img
-
-
     
 # Create the model
 # See https://ai.google.dev/api/python/google/generativeai/GenerativeModel
@@ -481,8 +478,4 @@ def generate_text_stream():
         }), 405
 
 if __name__ == '__main__':
-<<<<<<< HEAD
     app.run(debug=True, host="127.0.0.1", port=int(os.environ.get("PORT", 5000))) 
-=======
-    app.run(debug=True, host="127.0.0.1", port=int(os.environ.get("PORT", 8080))) 
->>>>>>> b6995d0796dc7808e34440e622aec08575f5112d

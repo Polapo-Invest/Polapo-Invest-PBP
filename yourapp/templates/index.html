@@ -47,7 +47,7 @@
             <div class="container bg-white rounded-lg shadow-md">
                 <h1 class="text-3xl font-bold mb-4 text-center">ChatBot</h1>
                 <div class="chat" id="chatContainer"></div>
-                <div class="image-container hidden" id="imageContainer"></div>
+                <div class="chat-image-container hidden" id="imageContainer"></div>
                 <div class="flex">
                   <input
                   type="text"
@@ -66,19 +66,13 @@
  </body>
 </html>
 
-<!-- image moddal -->
-<div id="myModal" class="modal">
-    <span class="close">&times;</span>
-    <img class="modal-content" id="img01">
-    <div id="caption"></div>
-  </div>
 
   <script src="{{ url_for('static', filename='js/script.js') }}"></script>
   <script>
     document.getElementById('backtestResultButton').addEventListener('click', function() {
       const cs_model = document.getElementById('cs_model').value;
       const ts_model = document.getElementById('ts_model').value;
-
+  
       fetch('/Backtest_result', {
         method: 'POST',
         headers: {
@@ -93,36 +87,18 @@
             return;
           }
           document.getElementById('backtestResult').innerHTML = `
-            <div class="image" id="image1">
-              <img src="data:image/png;base64,${data.port_weights_img}" alt="Portfolio Weights">
-            </div>
-            <div class="image" id="image2">
-              <img src="data:image/png;base64,${data.asset_performance_img}" alt="Asset Performance">
-            </div>
-            <div class="image" id="image3">
-              <img src="data:image/png;base64,${data.portfolio_performance_img}" alt="Portfolio Performance">
-            </div>
+            <img src="data:image/png;base64,${data.port_weights_img}" alt="Portfolio Weights">
+            <img src="data:image/png;base64,${data.asset_performance_img}" alt="Asset Performance">
+            <img src="data:image/png;base64,${data.portfolio_performance_img}" alt="Portfolio Performance">
           `;
           document.getElementById('backtestResult').classList.add('active');
           document.getElementById('detailedReport').classList.remove('active');
-
-          // image click event 
-          const images = document.querySelectorAll('.image img');
-          images.forEach(img => {
-            img.addEventListener('click', function() {
-              const modal = document.getElementById("myModal");
-              const modalImg = document.getElementById("img01");
-              const captionText = document.getElementById("caption");
-              modal.style.display = "block";
-              modalImg.src = this.src;
-              captionText.innerHTML = this.alt;
-            });
-          });
         })
         .catch(error => {
           console.error('Error:', error);
         });
     });
+ 
 
     document.getElementById('detailedReportButton').addEventListener('click', function() {
       const cs_model = document.getElementById('cs_model').value;
@@ -149,14 +125,6 @@
           console.error('Error:', error);
         });
     });
-
-
-    // modal close
-    const modal = document.getElementById("myModal");
-    const span = document.getElementsByClassName("close")[0];
-    span.onclick = function() {
-      modal.style.display = "none";
-    }
   </script>
 </body>
 </html>

@@ -195,19 +195,36 @@ document.getElementById('backtestResultButton').addEventListener('click', functi
         console.error('Error:', data.error);
         return;
       }
-      document.getElementById('backtestResult').innerHTML = `
-        <div class="image" id="image1">
-          <img src="data:image/png;base64,${data.port_weights_img}" alt="Portfolio Weights" style="width: 80%; height: auto;">
-        </div>
-        <div class="image" id="image2">
-          <img src="data:image/png;base64,${data.asset_performance_img}" alt="Asset Performance" style="width: 80%; height: auto;">
-        </div>
-        <div class="image" id="image3">
-          <img src="data:image/png;base64,${data.portfolio_performance_img}" alt="Portfolio Performance" style="width: 80%; height: auto;">
-        </div>
-      `;
-      document.getElementById('backtestResult').classList.add('active');
-      document.getElementById('detailedReport').classList.remove('active');
+
+      function loadImage(src, alt) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.onerror = reject;
+          img.src = src;
+          img.alt = alt;
+        });
+      }
+
+      Promise.all([
+        loadImage(`data:image/png;base64,${data.port_weights_img}`, "Portfolio Weights"),
+        loadImage(`data:image/png;base64,${data.asset_performance_img}`, "Asset Performance"),
+        loadImage(`data:image/png;base64,${data.portfolio_performance_img}`, "Portfolio Performance")
+      ]).then(images => {
+        const backtestResult = document.getElementById('backtestResult');
+        backtestResult.innerHTML = '';
+        images.forEach((img, index) => {
+          const container = document.createElement('div');
+          container.className = 'image-container';
+          container.id = `image${index + 1}`;
+          container.appendChild(img);
+          backtestResult.appendChild(container);
+        });
+        backtestResult.classList.add('active');
+        document.getElementById('detailedReport').classList.remove('active');
+      }).catch(error => {
+        console.error('Error loading images:', error);
+      });
     })
     .catch(error => {
       console.error('Error:', error);
@@ -238,8 +255,4 @@ document.getElementById('detailedReportButton').addEventListener('click', functi
     .catch(error => {
       console.error('Error:', error);
     });
-<<<<<<< HEAD
 });
-=======
-});
->>>>>>> b6995d0796dc7808e34440e622aec08575f5112d
