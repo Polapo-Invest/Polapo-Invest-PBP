@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "firebase": "^10.12.4",
+    "firebase-tools": "^13.14.0"
+  },
+  "scripts": {
+    "build": "",
+    "serve": "firebase serve --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  }
+}

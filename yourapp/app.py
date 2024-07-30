@@ -481,4 +481,8 @@ def generate_text_stream():
         }), 405
 
 if __name__ == '__main__':
+<<<<<<< HEAD
     app.run(debug=True, host="127.0.0.1", port=int(os.environ.get("PORT", 5000))) 
+=======
+    app.run(debug=True, host="127.0.0.1", port=int(os.environ.get("PORT", 8080))) 
+>>>>>>> b6995d0796dc7808e34440e622aec08575f5112d

@@ -30,7 +30,7 @@ async function sendMessage() {
 
 async function generateText(prompt, images) {
   try {
-    const response = await fetch("http://127.0.0.1:5000/generate_text_stream", {
+    const response = await fetch("http://127.0.0.1:8080/generate_text_stream", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -238,4 +238,8 @@ document.getElementById('detailedReportButton').addEventListener('click', functi
     .catch(error => {
       console.error('Error:', error);
     });
+<<<<<<< HEAD
 });
+=======
+});
+>>>>>>> b6995d0796dc7808e34440e622aec08575f5112d

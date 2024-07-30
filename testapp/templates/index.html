@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portfolio Backtesting</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+  <body>
+    <h1>Portfolio Backtesting</h1>
+    <form method="post" action="/">
+      <label for="cs_model">Choose Cross-Sectional Model:</label>
+      <select id="cs_model" name="cs_model">
+        <option value="EW">Equal Weight (EW)</option>
+        <option value="MSR">Maximum Sharpe Ratio (MSR)</option>
+        <option value="GMV">Global Minimum Variance (GMV)</option>
+        <option value="MDP">Minimum Drawdown Risk (MDP)</option>
+        <option value="EMV">Equal Risk Contribution (EMV)</option>
+        <option value="RP">Risk Parity (RP)</option>
+      </select>
+
+      <label for="ts_model">Choose Time-Series Model:</label>
+      <select id="ts_model" name="ts_model">
+        <option value="VT">Volatility Targeting (VT)</option>
+        <option value="CVT">Conditional Value at Risk Targeting (CVT)</option>
+        <option value="KL">Kelly Criterion (KL)</option>
+        <option value="CPPI">
+          Constant Proportion Portfolio Insurance (CPPI)
+        </option>
+      </select>
+
+      <input type="submit" value="Generate Report" />
+    </form>
+
+    <div class="sidebar" id="sidebar">
+      <button class="toggle-button" onclick="toggleSidebar()">☰</button>
+      <div class="sidebar-content" id="sidebarContent">
+        <div class="container bg-white rounded-lg shadow-md">
+          <h1 class="text-3xl font-bold mb-4 text-center">ChatBot</h1>
+          <div class="chat" id="chatContainer"></div>
+          <div class="image-container hidden" id="imageContainer"></div>
+          <div class="flex">
+            <input
+              type="text"
+              id="userInput"
+              placeholder="Type your message here..."
+              class="outline-none"
+              onkeyup="handleKeyPress(event)"
+            />
+            <button class="send-button" onclick="sendMessage()">Send</button>
+          </div>
+          <div class="typing-indicator" id="typingIndicator"></div>
+        </div>
+      </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  </body>
+</html>
