@@ -30,7 +30,7 @@ async function sendMessage() {
 
 async function generateText(prompt, images) {
   try {
-    const response = await fetch("http://127.0.0.1:8080/generate_text_stream", {
+    const response = await fetch("http://127.0.0.1:5000/generate_text_stream", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -73,7 +73,7 @@ function addMessage(text, type, images = []) {
   messageContent.innerHTML = `<p>${text}</p>`;
 
   images.forEach(src => {
-    const img = document.createElement("img");
+    const img = document.createElement("chat-img");
     img.src = `data:image/png;base64,${src}`;
     img.classList.add("message-image");
     messageContent.appendChild(img);
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const imgContainer = document.createElement('div');
     imgContainer.classList.add('img-preview-container');
 
-    const img = document.createElement('img');
+    const img = document.createElement('chat-img');
     img.src = src;
     img.classList.add('img-preview');
 
@@ -177,8 +177,11 @@ document.addEventListener('DOMContentLoaded', () => {
   checkImageContainerVisibility();
 });
 
+
 // Backtest Result and Detailed Report buttons
 document.getElementById('backtestResultButton').addEventListener('click', function() {
+  const button = this;
+  showLoading(button);
   const cs_model = document.getElementById('cs_model').value;
   const ts_model = document.getElementById('ts_model').value;
 
@@ -224,14 +227,19 @@ document.getElementById('backtestResultButton').addEventListener('click', functi
         document.getElementById('detailedReport').classList.remove('active');
       }).catch(error => {
         console.error('Error loading images:', error);
+      }).finally(() => {
+        hideLoading(button);
       });
     })
     .catch(error => {
       console.error('Error:', error);
+      hideLoading(button);
     });
 });
 
 document.getElementById('detailedReportButton').addEventListener('click', function() {
+  const button = this;
+  showLoading(button);
   const cs_model = document.getElementById('cs_model').value;
   const ts_model = document.getElementById('ts_model').value;
 
@@ -254,5 +262,23 @@ document.getElementById('detailedReportButton').addEventListener('click', functi
     })
     .catch(error => {
       console.error('Error:', error);
+    })
+    .finally(() => {
+      hideLoading(button);
     });
 });
+
+function showLoading(button) {
+  button.disabled = true;
+  const spinner = document.createElement('div');
+  spinner.className = 'spinner';
+  button.appendChild(spinner);
+}
+
+function hideLoading(button) {
+  button.disabled = false;
+  const spinner = button.querySelector('.spinner');
+  if (spinner) {
+    button.removeChild(spinner);
+  }
+}

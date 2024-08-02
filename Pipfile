@@ -5,15 +5,16 @@ name = "pypi"
 
 [packages]
 flask = "*"
-numpy = "*"
 pandas = "*"
 matplotlib = "*"
 yfinance = "*"
-quantstats = "*"
 ipython = "*"
 "google.generativeai" = "*"
 python-dotenv = "*"
 seaborn = "*"
+import = "*"
+as = "*"
+qs = "*"
 
 [dev-packages]
 

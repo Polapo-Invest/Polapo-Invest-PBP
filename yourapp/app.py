@@ -269,9 +269,17 @@ class GEMTU772:
         return port_weights, port_asset_rets, port_rets
 
     def performance_analytics(self, port_weights, port_asset_rets, port_rets):
+        # Check for missing values in port_weights
+        if port_weights.isnull().values.any():
+            port_weights = port_weights.fillna(0)
+        
         # Generate and save Investment Weight by Asset graph
         plt.figure(figsize=(12, 7))
+        
+        # Ensure the 'Cash' column is calculated correctly
         port_weights['Cash'] = 1 - port_weights.sum(axis=1)
+        port_weights = port_weights.clip(lower=0)  # Clip values to be non-negative
+        
         plt.stackplot(port_weights.index, port_weights.T, labels=port_weights.columns)
         plt.title('Portfolio Weights')
         plt.xlabel('Date')
@@ -315,6 +323,7 @@ class GEMTU772:
         plt.close()
 
         return port_weights_img, asset_performance_img, portfolio_performance_img
+
     
 # Create the model
 # See https://ai.google.dev/api/python/google/generativeai/GenerativeModel
@@ -361,8 +370,6 @@ def report():
             qs.reports.html(port_rets, output=tmp_file.name)
             tmp_file.seek(0)
             report_html = tmp_file.read().decode('utf-8')
-
-        return render_template('report_viewer.html', report_html=report_html)
 
     return render_template('index.html')
 
