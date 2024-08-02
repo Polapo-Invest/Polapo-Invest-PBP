@@ -239,3 +239,67 @@ document.getElementById('detailedReportButton').addEventListener('click', functi
       console.error('Error:', error);
     });
 });
+
+// get_tricker
+async function getTicker() {
+  const companyName = new Array(
+    document.getElementById('companyName1').value,
+    document.getElementById('companyName2').value,
+    document.getElementById('companyName3').value,
+    document.getElementById('companyName4').value
+  )
+
+  const resultDiv = new Array(
+    document.getElementById('result1'),
+    document.getElementById('result2'),
+    document.getElementById('result3'),
+    document.getElementById('result4')
+  )
+  
+  // Clear previous results
+  for(let i = 0; i<4; i++) {
+    resultDiv[i].innerHTML = '';
+  }
+
+  // empty input 처리
+  let emptyflag = false;
+  for(let i = 0; i<4; i++) {
+    if(!companyName[i]) {
+      resultDiv[i].innerHTML = 'Please enter a company name.!';
+      emptyflag = true;
+    }
+  }
+  if(emptyflag) return;
+
+  for(let i=0; i<4; i++) {
+      const response = await fetch(`/get_ticker?company_name=${encodeURIComponent(companyName[i])}`);
+      
+      if (!response.ok) {
+          throw new Error('Network response was not ok');
+      }
+      
+      const data = await response.json();
+      if(!data.success) {
+        resultDiv[i].innerHTML = data.message;
+      }
+      else {
+          resultDiv[i].innerHTML = `The ticker for '${companyName[i]}' is: ${data.ticker}`;
+      } 
+  }
+  
+}
+
+function checkInput() {
+  const inputField = document.getElementById('inputField');
+  const approvalMessage = document.getElementById('approvalMessage');
+  const disapprovalMessage = document.getElementById('disapprovalMessage');
+  const correctValue = 'apple';
+
+  if (inputField.value === correctValue) {
+      approvalMessage.style.display = 'inline';
+      disapprovalMessage.style.display = 'none';
+  } else {
+      approvalMessage.style.display = 'none';
+      disapprovalMessage.style.display = 'inline';
+  }
+}

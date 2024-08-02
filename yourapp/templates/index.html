@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portfolio Backtesting</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </head>
 <body>
   <h1>Portfolio Backtesting</h1>
@@ -27,6 +27,36 @@
       <option value="KL">Kelly Criterion (KL)</option>
       <option value="CPPI">Constant Proportion Portfolio Insurance (CPPI)</option>
     </select>
+
+    <label for="stock">Select Stock:</label>        
+      <input type="text" id="companyName1" placeholder="Enter company name">
+      <div id="result1"></div>
+      <input type="text" id="companyName2" placeholder="Enter company name">
+      <div id="result2"></div>
+      <input type="text" id="companyName3" placeholder="Enter company name">
+      <div id="result3"></div>
+      <input type="text" id="companyName4" placeholder="Enter company name">
+      <div id="result4"></div>
+      <button type="button" onclick="getTicker()">Get Ticker</button>
+
+      <div>
+        <input type="text" id="inputField" placeholder="Enter company name">
+        <button type="button" onclick="checkInput()">Search</button>
+        <span id="approvalMessage" style="display: none;" class="approved">approved</span>
+        <span id="disapprovalMessage" style="display: none;" class="disapproved">wrong name</span>
+      </div>
+      <div>
+        <input type="text" id="inputField" placeholder="Enter company name">
+        <button type="button" onclick="checkInput()">Search</button>
+        <span id="approvalMessage" style="display: none;" class="approved">approved</span>
+        <span id="disapprovalMessage" style="display: none;" class="disapproved">wrong name</span>
+      </div>
+      <div>
+        <input type="text" id="inputField" placeholder="Enter company name">
+        <button type="button" onclick="checkInput()">Search</button>
+        <span id="approvalMessage" style="display: none;" class="approved">approved</span>
+        <span id="disapprovalMessage" style="display: none;" class="disapproved">wrong name</span>
+      </div>      
 
     <button type="submit" class="button">Generate Report</button>
   </form>
@@ -71,9 +101,9 @@
     <span class="close">&times;</span>
     <img class="modal-content" id="img01">
     <div id="caption"></div>
-  </div>
+</div>
 
-  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  
   <script>
     document.getElementById('backtestResultButton').addEventListener('click', function() {
       const cs_model = document.getElementById('cs_model').value;
