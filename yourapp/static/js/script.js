@@ -65,12 +65,18 @@ async function generateText(prompt, images) {
 }
 
 function addMessage(text, type, images = []) {
+
+  let md = window.markdownit();
+
   const messageDiv = document.createElement("div");
   messageDiv.className = `message ${type}`;
 
   const messageContent = document.createElement("div");
   messageContent.className = "message-bubble fadeIn";
-  messageContent.innerHTML = `<p>${text}</p>`;
+  const render = () => {
+    messageContent.innerHTML = md.render(text);
+  }
+  render()
 
   images.forEach(src => {
     const img = document.createElement("img");

@@ -1,7 +1,8 @@
 {
   "dependencies": {
     "firebase": "^10.12.4",
-    "firebase-tools": "^13.14.0"
+    "firebase-tools": "^13.14.0",
+    "markdown-it": "^14.1.0"
   },
   "scripts": {
     "build": "",
