@@ -269,13 +269,13 @@ class GEMTU772:
         return port_weights, port_asset_rets, port_rets
 
     def performance_analytics(self, port_weights, port_asset_rets, port_rets):
-        # 데이터 전처리
+        # Data preprocessing
         port_weights = port_weights.fillna(0)
         port_weights['Cash'] = 1 - port_weights.sum(axis=1)
         port_weights = port_weights.clip(lower=0)
         port_weights = port_weights.div(port_weights.sum(axis=1), axis=0)
 
-        # 그래프 생성 함수
+        # Graph generate function
         def create_graph(plot_func, title, xlabel, ylabel, legend=True):
             fig, ax = plt.subplots(figsize=(12, 7))
             plot_func(ax)
@@ -291,19 +291,19 @@ class GEMTU772:
             buf.seek(0)
             return base64.b64encode(buf.getvalue()).decode('utf-8')
 
-        # 포트폴리오 가중치 그래프
+        # Portfolio weight graph
         def plot_weights(ax):
             ax.stackplot(port_weights.index, port_weights.T, labels=port_weights.columns)
 
-        # 자산 성과 그래프
+        # Asset performance graph
         def plot_asset_performance(ax):
             ((1 + port_asset_rets).cumprod() - 1).plot(ax=ax)
 
-        # 포트폴리오 성과 그래프
+        # Portfolio performance graph
         def plot_portfolio_performance(ax):
             ((1 + port_rets).cumprod() - 1).plot(ax=ax)
 
-        # 그래프 생성
+        # Graph generation
         port_weights_img = create_graph(plot_weights, 'Portfolio Weights', 'Date', 'Weights')
         asset_performance_img = create_graph(plot_asset_performance, 'Underlying Asset Performance', 'Date', 'Returns')
         portfolio_performance_img = create_graph(plot_portfolio_performance, 'Portfolio Performance', 'Date', 'Returns', legend=False)
