@@ -269,58 +269,44 @@ class GEMTU772:
         return port_weights, port_asset_rets, port_rets
 
     def performance_analytics(self, port_weights, port_asset_rets, port_rets):
-        # Check for missing values in port_weights
-        if port_weights.isnull().values.any():
-            port_weights = port_weights.fillna(0)
-        
-        # Generate and save Investment Weight by Asset graph
-        plt.figure(figsize=(12, 7))
-        
-        # Ensure the 'Cash' column is calculated correctly
+        # 데이터 전처리
+        port_weights = port_weights.fillna(0)
         port_weights['Cash'] = 1 - port_weights.sum(axis=1)
-        port_weights = port_weights.clip(lower=0)  # Clip values to be non-negative
-        
-        plt.stackplot(port_weights.index, port_weights.T, labels=port_weights.columns)
-        plt.title('Portfolio Weights')
-        plt.xlabel('Date')
-        plt.ylabel('Weights')
-        plt.legend(loc='upper left')
-        
-        buf = BytesIO()
-        plt.savefig(buf, format='png')
-        buf.seek(0)
-        port_weights_img = base64.b64encode(buf.getvalue()).decode('utf-8')
-        buf.close()
-        plt.close()
+        port_weights = port_weights.clip(lower=0)
+        port_weights = port_weights.div(port_weights.sum(axis=1), axis=0)
 
-        # Generate and save Accumulated return by asset graph
-        plt.figure(figsize=(12, 7))
-        plt.plot((1 + port_asset_rets).cumprod() - 1)
-        plt.title('Underlying Asset Performance')
-        plt.xlabel('Date')
-        plt.ylabel('Returns')
-        plt.legend(port_asset_rets.columns, loc='upper left')
-        
-        buf = BytesIO()
-        plt.savefig(buf, format='png')
-        buf.seek(0)
-        asset_performance_img = base64.b64encode(buf.getvalue()).decode('utf-8')
-        buf.close()
-        plt.close()
+        # 그래프 생성 함수
+        def create_graph(plot_func, title, xlabel, ylabel, legend=True):
+            fig, ax = plt.subplots(figsize=(12, 7))
+            plot_func(ax)
+            ax.set_title(title)
+            ax.set_xlabel(xlabel)
+            ax.set_ylabel(ylabel)
+            if legend:
+                ax.legend(loc='upper left')
+            
+            buf = BytesIO()
+            fig.savefig(buf, format='png', dpi=300, bbox_inches='tight')
+            plt.close(fig)
+            buf.seek(0)
+            return base64.b64encode(buf.getvalue()).decode('utf-8')
 
-        # Generate and save Portfolio Accumulated Return graph
-        plt.figure(figsize=(12, 7))
-        plt.plot((1 + port_rets).cumprod() - 1)
-        plt.title('Portfolio Performance')
-        plt.xlabel('Date')
-        plt.ylabel('Returns')
-        
-        buf = BytesIO()
-        plt.savefig(buf, format='png')
-        buf.seek(0)
-        portfolio_performance_img = base64.b64encode(buf.getvalue()).decode('utf-8')
-        buf.close()
-        plt.close()
+        # 포트폴리오 가중치 그래프
+        def plot_weights(ax):
+            ax.stackplot(port_weights.index, port_weights.T, labels=port_weights.columns)
+
+        # 자산 성과 그래프
+        def plot_asset_performance(ax):
+            ((1 + port_asset_rets).cumprod() - 1).plot(ax=ax)
+
+        # 포트폴리오 성과 그래프
+        def plot_portfolio_performance(ax):
+            ((1 + port_rets).cumprod() - 1).plot(ax=ax)
+
+        # 그래프 생성
+        port_weights_img = create_graph(plot_weights, 'Portfolio Weights', 'Date', 'Weights')
+        asset_performance_img = create_graph(plot_asset_performance, 'Underlying Asset Performance', 'Date', 'Returns')
+        portfolio_performance_img = create_graph(plot_portfolio_performance, 'Portfolio Performance', 'Date', 'Returns', legend=False)
 
         return port_weights_img, asset_performance_img, portfolio_performance_img
 
