@@ -1,10 +1,10 @@
-runtime: python311
+runtime: python
 
 api_version: 1
 threadsafe: true
 
 # the PROJECT-DIRECTORY is the one with settings.py and wsgi.py
-entrypoint: gunicorn -b :$PORT main.app
+entrypoint: gunicorn -b :$PORT main.wsgi
 # specific to a GUnicorn HTTP server deployment
 env: flex 
 # for Google Cloud Flexible App Engine
@@ -12,21 +12,48 @@ env: flex
 # any environment variables you want to pass to your application.
 # accessible through os.environ['VARIABLE_NAME']
 env_variables:
-# the secret key used for the Flask app
-  GEMINI_API_KEY: 'AIzaSyB2gzgorZJHXjlqYy96YRXR9FakybFN4Cs' 
+# the secret key used for the Django app (from PROJECT-DIRECTORY/settings.py)
+  SECRET_KEY: '***i removed this***' 
   DEBUG: 'False' # always False for deployment
 
-# This section is used to define the handlers for your app.
+# everything after /cloudsql/ can be found by entering >> gcloud sql instances describe DATABASE-NAME << in your Terminal
+# the DATABASE-NAME is the name you gave your project's PostgreSQL database
+# the second line from the describe output called connectionName can be copied and pasted after /cloudsql/
+  DB_HOST: '/cloudsql/ final-234816:us-central1:novusdb'
+  DB_PORT: '5432' # PostgreSQL port
+  DB_NAME: 'novusdb'
+  DB_USER: 'postgres' # either 'postgres' (default) or one you created on the PostgreSQL instance page
+  DB_PASSWORD: ''
+
+  STATIC_URL: 'https://storage.googleapis.com/BUCKET-NAME/static/' # this is the url that you sync static files to
+
 handlers:
-  # This handler routes all URLs to your main.py file.
-  - url: /.*
-    script: auto
+- url: /static
+  static_dir: static
 
-# This section is for static file handling.
-# It serves files in the 'static' folder at the '/static' URL path.
-  - url: /static
-    static_dir: static
+- url: /
+  script: home.app
 
+- url: /index\.html
+  script: home.app
+
+- url: /stylesheets
+  static_dir: stylesheets
+
+- url: /(.*\.(gif|png|jpg))$
+  static_files: static/\1
+  upload: static/.*\.(gif|png|jpg)$
+
+- url: /admin/.*
+  script: admin.app
+  login: admin
+
+- url: /.*
+  script: not_found.app
+
+beta_settings:
+# from command >> gcloud sql instances describe DATABASE-NAME <<
+  cloud_sql_instances: final-234816:us-central1:novusdb 
 
 #runtime_config:
 #python_version: 2 # enter your Python version BASE ONLY here. Enter 2 for 2.7.9 or 3 for 3.6.4
