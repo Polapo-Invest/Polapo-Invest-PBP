@@ -4,6 +4,15 @@ const typingIndicator = document.getElementById("typingIndicator");
 const sidebar = document.getElementById("sidebar");
 const sidebarContent = document.getElementById("sidebarContent");
 const imageContainer = document.getElementById("imageContainer");
+console.log("This is a test message.");
+
+// console.log = function(message) {
+//   // 예제: 기본 동작을 유지하면서 추가 동작 수행
+//   alert(message); // 메시지를 알림으로도 표시
+//   console.warn(message); // 경고로 출력
+// };
+
+console.log("This is a test message.");
 
 async function sendMessage() {
   const prompt = promptInput.value.trim();
@@ -177,69 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
   checkImageContainerVisibility();
 });
 
-// Backtest Result and Detailed Report buttons
-document.getElementById('backtestResultButton').addEventListener('click', function() {
-  const cs_model = document.getElementById('cs_model').value;
-  const ts_model = document.getElementById('ts_model').value;
-
-  fetch('/Backtest_result', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ cs_model: cs_model, ts_model: ts_model }),
-  })
-    .then(response => response.json())
-    .then(data => {
-      if (data.error) {
-        console.error('Error:', data.error);
-        return;
-      }
-      document.getElementById('backtestResult').innerHTML = `
-        <div class="image" id="image1">
-          <img src="data:image/png;base64,${data.port_weights_img}" alt="Portfolio Weights" style="width: 80%; height: auto;">
-        </div>
-        <div class="image" id="image2">
-          <img src="data:image/png;base64,${data.asset_performance_img}" alt="Asset Performance" style="width: 80%; height: auto;">
-        </div>
-        <div class="image" id="image3">
-          <img src="data:image/png;base64,${data.portfolio_performance_img}" alt="Portfolio Performance" style="width: 80%; height: auto;">
-        </div>
-      `;
-      document.getElementById('backtestResult').classList.add('active');
-      document.getElementById('detailedReport').classList.remove('active');
-    })
-    .catch(error => {
-      console.error('Error:', error);
-    });
-});
-
-document.getElementById('detailedReportButton').addEventListener('click', function() {
-  const cs_model = document.getElementById('cs_model').value;
-  const ts_model = document.getElementById('ts_model').value;
-
-  fetch('/generate_html_report', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ cs_model: cs_model, ts_model: ts_model }),
-  })
-    .then(response => response.json())
-    .then(data => {
-      if (data.error) {
-        console.error('Error:', data.error);
-        return;
-      }
-      document.getElementById('detailedReport').innerHTML = data.report_html;
-      document.getElementById('detailedReport').classList.add('active');
-      document.getElementById('backtestResult').classList.remove('active');
-    })
-    .catch(error => {
-      console.error('Error:', error);
-    });
-});
-
 // get_tricker
 async function getTicker() {
   const companyName = new Array(
@@ -255,6 +201,13 @@ async function getTicker() {
     document.getElementById('result3'),
     document.getElementById('result4')
   )
+
+  const tickerInput = new Array(
+    document.getElementById('ticker1'),
+    document.getElementById('ticker2'),
+    document.getElementById('ticker3'),
+    document.getElementById('ticker4')
+  )
   
   // Clear previous results
   for(let i = 0; i<4; i++) {
@@ -265,17 +218,17 @@ async function getTicker() {
   let emptyflag = false;
   for(let i = 0; i<4; i++) {
     if(!companyName[i]) {
-      resultDiv[i].innerHTML = 'Please enter a company name.!';
+      resultDiv[i].innerHTML = 'Please enter a company name.';
       emptyflag = true;
     }
   }
-  if(emptyflag) return;
+  if(emptyflag) return false;
 
   for(let i=0; i<4; i++) {
       const response = await fetch(`/get_ticker?company_name=${encodeURIComponent(companyName[i])}`);
       
       if (!response.ok) {
-          throw new Error('Network response was not ok');
+        resultDiv[i].innerHTML = 'Network response was not ok';
       }
       
       const data = await response.json();
@@ -283,14 +236,14 @@ async function getTicker() {
         resultDiv[i].innerHTML = data.message;
       }
       else {
-          resultDiv[i].innerHTML = `The ticker for '${companyName[i]}' is: ${data.ticker}`;
+        resultDiv[i].innerHTML = `The ticker for '${companyName[i]}' is: ${data.ticker}`;
+        tickerInput[i].value = data.ticker
       } 
   }
-  
 }
 
-function checkInput() {
-  const inputField = document.getElementById('inputField');
+function checkStartYear() {
+  const inputField = document.getElementById('startyear');
   const approvalMessage = document.getElementById('approvalMessage');
   const disapprovalMessage = document.getElementById('disapprovalMessage');
   const correctValue = 'apple';
