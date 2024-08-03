@@ -136,7 +136,7 @@ def generate_report():
     data = request.get_json()
     if data is None:
         return jsonify({"error": "No input data provided"}), 400
-    
+
     cs_model = data.get('cs_model')
     ts_model = data.get('ts_model')
     tickers = data.get('tickers')
