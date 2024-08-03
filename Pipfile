@@ -5,7 +5,6 @@ name = "pypi"
 
 [packages]
 flask = "*"
-numpy = "*"
 pandas = "*"
 matplotlib = "*"
 yfinance = "*"
@@ -13,6 +12,8 @@ quantstats = "*"
 ipython = "*"
 "google.generativeai" = "*"
 python-dotenv = "*"
+numpy = "==1.26.4"
+yahooquery = "*"
 
 [dev-packages]
 
