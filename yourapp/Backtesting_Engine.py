@@ -236,13 +236,50 @@ class GEMTU772:
         return port_weights, port_asset_rets, port_rets
     
 
-    def performance_analytics(self, port_rets):
-        if not isinstance(port_rets.index, pd.DatetimeIndex):
-            port_rets.index = pd.to_datetime(port_rets.index)
+    def performance_analytics(self, port_weights, port_asset_rets, port_rets):
+        # Generate and save Investment Weight by Asset graph
+        plt.figure(figsize=(12, 7))
+        port_weights['Cash'] = 1 - port_weights.sum(axis=1)
+        plt.stackplot(port_weights.index, port_weights.T, labels=port_weights.columns)
+        plt.title('Portfolio Weights')
+        plt.xlabel('Date')
+        plt.ylabel('Weights')
+        plt.legend(loc='upper left')
+        
+        buf = BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        port_weights_img = base64.b64encode(buf.getvalue()).decode('utf-8')
+        buf.close()
+        plt.close()
 
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.html') as tmp_file:
-            qs.reports.html(port_rets, output=tmp_file.name)
-            tmp_file.seek(0)
-            report_html = tmp_file.read().decode('utf-8')
+        # Generate and save Accumulated return by asset graph
+        plt.figure(figsize=(12, 7))
+        plt.plot((1 + port_asset_rets).cumprod() - 1)
+        plt.title('Underlying Asset Performance')
+        plt.xlabel('Date')
+        plt.ylabel('Returns')
+        plt.legend(port_asset_rets.columns, loc='upper left')
+        
+        buf = BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        asset_performance_img = base64.b64encode(buf.getvalue()).decode('utf-8')
+        buf.close()
+        plt.close()
 
-        return report_html
+        # Generate and save Portfolio Accumulated Return graph
+        plt.figure(figsize=(12, 7))
+        plt.plot((1 + port_rets).cumprod() - 1)
+        plt.title('Portfolio Performance')
+        plt.xlabel('Date')
+        plt.ylabel('Returns')
+        
+        buf = BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        portfolio_performance_img = base64.b64encode(buf.getvalue()).decode('utf-8')
+        buf.close()
+        plt.close()
+
+        return port_weights_img, asset_performance_img, portfolio_performance_img
