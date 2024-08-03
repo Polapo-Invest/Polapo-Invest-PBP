@@ -2,10 +2,7 @@ import os
 import google.generativeai as genai
 from flask import Flask, render_template, request, Response, jsonify, stream_with_context
 from dotenv import load_dotenv
-import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import yfinance as yf
 import quantstats as qs
 
 from io import BytesIO

@@ -1,8 +1,9 @@
 import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
-import quantstats as qs
-import tempfile
+import matplotlib.pyplot as plt
+from io import BytesIO
+import base64
 
 # Portfolio Backtesting Engine Class
 class GEMTU772:
