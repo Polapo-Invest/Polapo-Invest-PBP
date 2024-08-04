@@ -30,7 +30,7 @@ async function sendMessage() {
 
 async function generateText(prompt, images) {
   try {
-    const response = await fetch("http://127.0.0.1:8080/generate_text_stream", {
+    const response = await fetch("https://opt-wep-mi7kcwnijq-uc.a.run.app/generate_text_stream", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -185,6 +185,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // get_tricker
 async function getTicker() {
+  const button = document.getElementById('getTickerButton');
+  showLoading(button);
+
   const companyName = new Array(
     document.getElementById('companyName1').value,
     document.getElementById('companyName2').value,
