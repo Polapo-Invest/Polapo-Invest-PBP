@@ -88,7 +88,7 @@ function addMessage(text, type, images = []) {
   render()
 
   images.forEach(src => {
-    const img = document.createElement("img");
+    const img = document.createElement("chat-img");
     img.src = `data:image/png;base64,${src}`;
     img.classList.add("message-image");
     messageContent.appendChild(img);
@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const imgContainer = document.createElement('div');
     imgContainer.classList.add('img-preview-container');
 
-    const img = document.createElement('img');
+    const img = document.createElement('chat-img');
     img.src = src;
     img.classList.add('img-preview');
 
