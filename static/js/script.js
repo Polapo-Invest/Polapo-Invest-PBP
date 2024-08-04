@@ -185,9 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // get_tricker
 async function getTicker() {
-  const button = document.getElementById('getTickerButton');
-  showLoading(button);
-
   const companyName = new Array(
     document.getElementById('companyName1').value,
     document.getElementById('companyName2').value,
