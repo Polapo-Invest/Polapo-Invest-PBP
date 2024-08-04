@@ -262,3 +262,98 @@ function checkStartYear() {
       disapprovalMessage.style.display = 'inline';
   }
 }
+
+// Backtest Result and Detailed Report buttons
+document.getElementById('backtestResultButton').addEventListener('click', function() {
+  const cs_model = document.getElementById('cs_model').value;
+  const ts_model = document.getElementById('ts_model').value;
+  const tickers = new Array(
+    document.getElementById('ticker1').value,
+    document.getElementById('ticker2').value,
+    document.getElementById('ticker3').value,
+    document.getElementById('ticker4').value
+  )
+  const startyear = document.getElementById('startyear').value;
+  
+  console.log('cs_model:', cs_model);
+  console.log('ts_model:', ts_model);
+  console.log('tickers:', tickers);
+  console.log('startyear:', startyear);
+
+  fetch('/Backtest_result', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ cs_model: cs_model, ts_model: ts_model, tickers: tickers, startyear: startyear }),
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        console.error('Error:', data.error);
+        return;
+      }
+      document.getElementById('backtestResult').innerHTML = `
+        <div class="image" id="image1">
+          <img src="data:image/png;base64,${data.port_weights_img}" alt="Portfolio Weights">
+        </div>
+        <div class="image" id="image2">
+          <img src="data:image/png;base64,${data.asset_performance_img}" alt="Asset Performance">
+        </div>
+        <div class="image" id="image3">
+          <img src="data:image/png;base64,${data.portfolio_performance_img}" alt="Portfolio Performance">
+        </div>
+      `;
+      document.getElementById('backtestResult').classList.add('active');
+      document.getElementById('detailedReport').classList.remove('active');
+
+      // image click event 
+      const images = document.querySelectorAll('.image img');
+      images.forEach(img => {
+        img.addEventListener('click', function() {
+          const modal = document.getElementById("myModal");
+          const modalImg = document.getElementById("img01");
+          const captionText = document.getElementById("caption");
+          modal.style.display = "block";
+          modalImg.src = this.src;
+          captionText.innerHTML = this.alt;
+        });
+      });
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+});
+
+document.getElementById('detailedReportButton').addEventListener('click', function() {
+  const cs_model = document.getElementById('cs_model').value;
+  const ts_model = document.getElementById('ts_model').value;
+  const tickers = new Array(
+    document.getElementById('ticker1').value,
+    document.getElementById('ticker2').value,
+    document.getElementById('ticker3').value,
+    document.getElementById('ticker4').value
+  )
+  const startyear = document.getElementById('startyear').value;
+
+  fetch('/generate_html_report', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ cs_model: cs_model, ts_model: ts_model, tickers: tickers, startyear: startyear }),
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        console.error('Error:', data.error);
+        return;
+      }
+      document.getElementById('detailedReport').innerHTML = data.report_html;
+      document.getElementById('detailedReport').classList.add('active');
+      document.getElementById('backtestResult').classList.remove('active');
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+});
