@@ -184,6 +184,19 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // get_tricker
+document.getElementById('getTickerButton').addEventListener('click', async function() {
+  const button = this;
+  showLoading(button);
+  
+  try {
+    await getTicker();
+  } catch (error) {
+    console.error('Error:', error);
+  } finally {
+    hideLoading(button);
+  }
+});
+
 async function getTicker() {
   const companyName = new Array(
     document.getElementById('companyName1').value,
@@ -222,23 +235,28 @@ async function getTicker() {
     return false;
   }
 
-  for(let i=0; i<4; i++) {
-      if(companyName[i] == '') continue;
+  for(let i = 0; i < 4; i++) {
+    if(companyName[i] === '') continue;
 
+    try {
       const response = await fetch(`/get_ticker?company_name=${encodeURIComponent(companyName[i])}`);
-      
+
       if (!response.ok) {
         resultDiv[i].innerHTML = 'Network response was not ok';
+        continue;
       }
-      
+
       const data = await response.json();
-      if(!data.success) {
+      if (!data.success) {
         resultDiv[i].innerHTML = data.message;
-      }
-      else {
+      } else {
         resultDiv[i].innerHTML = `The ticker for '${companyName[i]}' is: ${data.ticker}`;
-        tickerInput[i].value = data.ticker
-      } 
+        tickerInput[i].value = data.ticker;
+      }
+    } catch (error) {
+      resultDiv[i].innerHTML = 'An error occurred while fetching the ticker';
+      console.error('Error:', error);
+    }
   }
 }
 
@@ -263,49 +281,19 @@ function checkValidStartYearInput(startyear) {
   }
 }
 
-document.getElementById('generateReportButton').addEventListener('click', function() {
-  const tickers = new Array(
-    document.getElementById('ticker1').value,
-    document.getElementById('ticker2').value,
-    document.getElementById('ticker3').value,
-    document.getElementById('ticker4').value
-  )
-  const startyear = document.getElementById('startyear').value;
-  const announcementDiv = document.getElementById('announcement');
-  const filteredTickers = tickers.filter(ticker => ticker !== '');
+document.getElementById('backtestResultButton').addEventListener('click', async function() {
+  const button = this;
+  showLoading(button);
 
-  // get ticker 버튼이 아직 눌리지 않은 경우
-  if(filteredTickers.length < 2) {
-    announcementDiv.innerHTML = "Please enter at least two correct company name. Then click 'Get Ticker' button first.";
-    alert("Please input at least two correct company name. Then click 'Get Ticker' button first.");
-    return;
-  }
-
-  // startyear가 입력되지 않은 경우
-  if(startyear == '') {
-    alert("Please input start year.");
-    return;
-  }      
-  
-  // startyear가 valid한지 확인
-  if(!checkValidStartYearInput(startyear)) {
-    alert("Invalid start year. Please follow the format 'YYYY-MM-DD'.");
-    return;
-  }
-
-  const form = document.getElementById('reportForm');
-  form.submit();
-})
-
-document.getElementById('backtestResultButton').addEventListener('click', function() {
   const cs_model = document.getElementById('cs_model').value;
   const ts_model = document.getElementById('ts_model').value;
-  const tickers = new Array(
+  const tickers = [
     document.getElementById('ticker1').value,
     document.getElementById('ticker2').value,
     document.getElementById('ticker3').value,
     document.getElementById('ticker4').value
-  )
+  ];
+  
   const startyear = document.getElementById('startyear').value;
   const announcementDiv = document.getElementById('announcement');
   const filteredTickers = tickers.filter(ticker => ticker !== '');
@@ -314,18 +302,21 @@ document.getElementById('backtestResultButton').addEventListener('click', functi
   if(filteredTickers.length < 2) {
     announcementDiv.innerHTML = "Please enter at least two correct company name. Then click 'Get Ticker' button first.";
     alert("Please input at least two correct company name. Then click 'Get Ticker' button first.");
+    hideLoading(button);
     return;
   }
 
   // startyear가 입력되지 않은 경우
   if(startyear == '') {
     alert("Please input start year.");
+    hideLoading(button);
     return;
   }      
   
   // startyear가 valid한지 확인
   if(!checkValidStartYearInput(startyear)) {
     alert("Invalid start year. Please follow the format 'YYYY-MM-DD'.");
+    hideLoading(button);
     return;
   }
 
@@ -335,60 +326,61 @@ document.getElementById('backtestResultButton').addEventListener('click', functi
   console.log('startyear:', startyear);
   console.log(filteredTickers);
 
-  fetch('/Backtest_result', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ cs_model: cs_model, ts_model: ts_model, tickers: filteredTickers, startyear: startyear }),
-  })
-    .then(response => response.json())
-    .then(data => {
-      if (data.error) {
-        console.error('Error:', data.error);
-        return;
-      }
-      document.getElementById('backtestResult').innerHTML = `
-        <div class="image" id="image1">
-          <img src="data:image/png;base64,${data.port_weights_img}" alt="Portfolio Weights">
-        </div>
-        <div class="image" id="image2">
-          <img src="data:image/png;base64,${data.asset_performance_img}" alt="Asset Performance">
-        </div>
-        <div class="image" id="image3">
-          <img src="data:image/png;base64,${data.portfolio_performance_img}" alt="Portfolio Performance">
-        </div>
-      `;
-      document.getElementById('backtestResult').classList.add('active');
-      document.getElementById('detailedReport').classList.remove('active');
-
-      // image click event 
-      const images = document.querySelectorAll('.image img');
-      images.forEach(img => {
-        img.addEventListener('click', function() {
-          const modal = document.getElementById("myModal");
-          const modalImg = document.getElementById("img01");
-          const captionText = document.getElementById("caption");
-          modal.style.display = "block";
-          modalImg.src = this.src;
-          captionText.innerHTML = this.alt;
-        });
-      });
-    })
-    .catch(error => {
-      console.error('Error:', error);
+  try {
+    const response = await fetch('/Backtest_result', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ cs_model, ts_model, tickers: filteredTickers, startyear }),
     });
+
+    if (!response.ok) {
+      console.error('Error:', response.statusText);
+      hideLoading(button);
+      return;
+    }
+
+    const data = await response.json();
+    if (data.error) {
+      console.error('Error:', data.error);
+      hideLoading(button);
+      return;
+    }
+    document.getElementById('backtestResult').innerHTML = `
+      <div class="image" id="image1">
+        <img src="data:image/png;base64,${data.port_weights_img}" alt="Portfolio Weights">
+      </div>
+      <div class="image" id="image2">
+        <img src="data:image/png;base64,${data.asset_performance_img}" alt="Asset Performance">
+      </div>
+      <div class="image" id="image3">
+        <img src="data:image/png;base64,${data.portfolio_performance_img}" alt="Portfolio Performance">
+      </div>
+    `;
+    document.getElementById('backtestResult').classList.add('active');
+    document.getElementById('detailedReport').classList.remove('active');
+  } catch (error) {
+    console.error('Error:', error);
+  } finally {
+    hideLoading(button);
+  }
 });
 
-document.getElementById('detailedReportButton').addEventListener('click', function() {
+
+document.getElementById('detailedReportButton').addEventListener('click', async function() {
+  const button = this;
+  showLoading(button);
+
   const cs_model = document.getElementById('cs_model').value;
   const ts_model = document.getElementById('ts_model').value;
-  const tickers = new Array(
+  const tickers = [
     document.getElementById('ticker1').value,
     document.getElementById('ticker2').value,
     document.getElementById('ticker3').value,
     document.getElementById('ticker4').value
-  )
+  ];
+
   const startyear = document.getElementById('startyear').value;
   const announcementDiv = document.getElementById('announcement');
   const filteredTickers = tickers.filter(ticker => ticker !== '');
@@ -397,47 +389,66 @@ document.getElementById('detailedReportButton').addEventListener('click', functi
   if(filteredTickers.length < 2) {
     announcementDiv.innerHTML = "Please enter at least two correct company name. Then click 'Get Ticker' button first.";
     alert("Please input at least two correct company name. Then click 'Get Ticker' button first.");
+    hideLoading(button);
     return;
   }
-
   // startyear가 입력되지 않은 경우
   if(startyear == '') {
     alert("Please input start year.");
+    hideLoading(button);
     return;
-  }      
+  }  
   
   // startyear가 valid한지 확인
   if(!checkValidStartYearInput(startyear)) {
     alert("Invalid start year. Please follow the format 'YYYY-MM-DD'.");
+    hideLoading(button);
     return;
   }
 
-  fetch('/generate_html_report', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ cs_model: cs_model, ts_model: ts_model, tickers: filteredTickers, startyear: startyear }),
-  })
-    .then(response => response.json())
-    .then(data => {
-      if (data.error) {
-        console.error('Error:', data.error);
-        return;
-      }
-      document.getElementById('detailedReport').innerHTML = data.report_html;
-      document.getElementById('detailedReport').classList.add('active');
-      document.getElementById('backtestResult').classList.remove('active');
-    })
-    .catch(error => {
-      console.error('Error:', error);
+  try {
+    const response = await fetch('/generate_html_report', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ cs_model, ts_model, tickers: filteredTickers, startyear }),
     });
+
+    if (!response.ok) {
+      console.error('Error:', response.statusText);
+      hideLoading(button);
+      return;
+    }
+
+    const data = await response.json();
+    if (data.error) {
+      console.error('Error:', data.error);
+      hideLoading(button);
+      return;
+    }
+
+    document.getElementById('detailedReport').innerHTML = data.report_html;
+    document.getElementById('detailedReport').classList.add('active');
+    document.getElementById('backtestResult').classList.remove('active');
+  } catch (error) {
+    console.error('Error:', error);
+  } finally {
+    hideLoading(button);
+  }
 });
 
+function showLoading(button) {
+  button.disabled = true;
+  const spinner = document.createElement('div');
+  spinner.className = 'spinner';
+  button.appendChild(spinner);
+}
 
-// modal close
-const modal = document.getElementById("myModal");
-const span = document.getElementsByClassName("close")[0];
-span.onclick = function() {
-  modal.style.display = "none";
+function hideLoading(button) {
+  button.disabled = false;
+  const spinner = button.querySelector('.spinner');
+  if (spinner) {
+    button.removeChild(spinner);
+  }
 }
