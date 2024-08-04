@@ -194,6 +194,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // get_tricker
 async function getTicker() {
+  const button = document.getElementById('getTickerButton');
+  showLoading(button);
+
   const companyName = new Array(
     document.getElementById('companyName1').value,
     document.getElementById('companyName2').value,
@@ -228,24 +231,36 @@ async function getTicker() {
       emptyflag = true;
     }
   }
-  if(emptyflag) return false;
+  if(emptyflag) {
+    hideLoading(button);
+    return false;
+  }
+  
 
-  for(let i=0; i<4; i++) {
+  try {
+    for(let i=0; i<4; i++) {
       const response = await fetch(`/get_ticker?company_name=${encodeURIComponent(companyName[i])}`);
       
       if (!response.ok) {
         resultDiv[i].innerHTML = 'Network response was not ok';
+      } else {
+        const data = await response.json();
+        if(!data.success) {
+          resultDiv[i].innerHTML = data.message;
+        } else {
+          resultDiv[i].innerHTML = `The ticker for '${companyName[i]}' is: ${data.ticker}`;
+          tickerInput[i].value = data.ticker
+        }
       }
-      
-      const data = await response.json();
-      if(!data.success) {
-        resultDiv[i].innerHTML = data.message;
-      }
-      else {
-        resultDiv[i].innerHTML = `The ticker for '${companyName[i]}' is: ${data.ticker}`;
-        tickerInput[i].value = data.ticker
-      } 
-  }
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    for(let i = 0; i<4; i++) {
+      resultDiv[i].innerHTML = 'An error occurred while fetching the ticker.';
+    }
+  } finally {
+    hideLoading(button);
+}
 }
 
 function checkStartYear() {
@@ -265,6 +280,8 @@ function checkStartYear() {
 
 // Backtest Result and Detailed Report buttons
 document.getElementById('backtestResultButton').addEventListener('click', function() {
+  const button = this;
+  showLoading(button);
   const cs_model = document.getElementById('cs_model').value;
   const ts_model = document.getElementById('ts_model').value;
   const tickers = new Array(
@@ -306,26 +323,19 @@ document.getElementById('backtestResultButton').addEventListener('click', functi
       `;
       document.getElementById('backtestResult').classList.add('active');
       document.getElementById('detailedReport').classList.remove('active');
-
-      // image click event 
-      const images = document.querySelectorAll('.image img');
-      images.forEach(img => {
-        img.addEventListener('click', function() {
-          const modal = document.getElementById("myModal");
-          const modalImg = document.getElementById("img01");
-          const captionText = document.getElementById("caption");
-          modal.style.display = "block";
-          modalImg.src = this.src;
-          captionText.innerHTML = this.alt;
-        });
-      });
     })
     .catch(error => {
       console.error('Error:', error);
     });
-});
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    hideLoading(button);
+  });
 
 document.getElementById('detailedReportButton').addEventListener('click', function() {
+  const button = this;
+  showLoading(button);
   const cs_model = document.getElementById('cs_model').value;
   const ts_model = document.getElementById('ts_model').value;
   const tickers = new Array(
@@ -355,5 +365,23 @@ document.getElementById('detailedReportButton').addEventListener('click', functi
     })
     .catch(error => {
       console.error('Error:', error);
+    })
+    .finally(() => {
+      hideLoading(button);
     });
 });
+
+function showLoading(button) {
+  button.disabled = true;
+  const spinner = document.createElement('div');
+  spinner.className = 'spinner';
+  button.appendChild(spinner);
+}
+
+function hideLoading(button) {
+  button.disabled = false;
+  const spinner = button.querySelector('.spinner');
+  if (spinner) {
+    button.removeChild(spinner);
+  }
+}
