@@ -21,7 +21,7 @@ def get_ticker_by_company_name(company_name):
     
     print(quotes)
     if not quotes:
-        result = json.dumps({'success':False, 'message':f"Wrong Company Name: {company_name}"})
+        result = json.dumps({'success':False, 'message':f"Wrong Company Name: {company_name} (Excluded from calculation)"})
         print(result)
         return result
     

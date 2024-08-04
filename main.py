@@ -75,15 +75,20 @@ def report():
             request.form.get('ticker3'),
             request.form.get('ticker4'),
         ]
+        
+        filtered_tickers = []
+        for ticker in tickers:
+            if ticker: filtered_tickers.append(ticker)
         startyear = request.form.get('startyear')
 
-        print("tickers:")
-        print(tickers)
+        print("filtered_tickers:")
+        print(filtered_tickers)
+        print(type(filtered_tickers))
         
         if not cs_model or not ts_model:
             return jsonify({"error": "Missing model selection"}), 400
         
-        df = get_etf_price_data(tickers, startyear)
+        df = get_etf_price_data(filtered_tickers, startyear)
 
         engine = GEMTU772(df) # Run backtesting
         res = engine.run(cs_model=cs_model, ts_model=ts_model, cost=0.0005)
@@ -97,7 +102,6 @@ def report():
             report_html = tmp_file.read().decode('utf-8')
 
         return render_template('report_viewer.html', report_html=report_html)
-    print("index return")
     return render_template('index.html')
 
 @app.route('/generate_html_report', methods=["POST"])
