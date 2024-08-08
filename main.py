@@ -11,8 +11,8 @@ import matplotlib
 from PIL import Image
 import tempfile
 
-from ETF_Functions import get_etf_price_data, get_ticker_by_company_name
-from Backtesting_Engine import GEMTU772
+from etf_functions import get_etf_price_data, get_ticker_by_company_name
+from backtesting_engine import GEMTU772
 
 matplotlib.use('Agg') # Engine reset issue solution code (TkAgg->Agg)
 
