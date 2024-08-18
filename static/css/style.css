@@ -248,7 +248,13 @@ a:hover {
     align-items: center;
     transition: background-color 0.3s ease;
     height: 100%;
+    cursor: move;
+
 }
+
+.session-tab.dragging {
+    opacity: 0.5;
+  }
 
 .session-tab.active {
     background-color: #007bff; /* 활성화된 탭을 파란색으로 설정 */

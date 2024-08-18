@@ -17,12 +17,14 @@ async function sendMessage() {
     .map(img => img.src.split(',')[1]); // Extract base64 data
 
   addMessage(prompt, 'user', images);
+  saveMessage(prompt, 'user');
   promptInput.value = "";
 
   showTypingIndicator();
 
   const generatedText = await generateText(prompt, images);
   addMessage(generatedText, 'bot');
+  saveMessage(generatedText, 'bot');
 
   hideTypingIndicator();
   //clearImagePreviews(); Add this code if you want the image in the imageContainer disappear if the user sends the image.
@@ -199,7 +201,6 @@ function startNewSession() {
   switchToSession(chatSessions.length - 1);
 }
 
-
 function switchToSession(index) {
     currentSessionIndex = index;
     loadSession(chatSessions[index]);
@@ -207,19 +208,16 @@ function switchToSession(index) {
 }
 
 function loadSession(session) {
-    const chatContainer = document.getElementById('chatContainer');
-    chatContainer.innerHTML = '';  // 기존 메시지 제거
+  const chatContainer = document.getElementById('chatContainer');
+  chatContainer.innerHTML = '';  // 기존 메시지 제거
 
-    session.messages.forEach(message => {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${message.type}`;
-        messageDiv.innerHTML = `<div class="message-bubble">${message.text}</div>`;
-        chatContainer.appendChild(messageDiv);
-    });
+  session.messages.forEach(message => {
+      addMessage(message.text, message.type);
+  });
 }
 
-function saveMessage(message) {
-    chatSessions[currentSessionIndex].messages.push({ text: message, type: 'user' });
+function saveMessage(message, type) {
+  chatSessions[currentSessionIndex].messages.push({ text: message, type: type });
 }
 
 function updateSessionTabs() {
@@ -227,28 +225,65 @@ function updateSessionTabs() {
   tabs.innerHTML = '';
 
   chatSessions.forEach((session, index) => {
-      const tab = document.createElement('div');
-      tab.className = 'session-tab';
-      if (index === currentSessionIndex) {
-          tab.classList.add('active');
-      }
+    const tab = document.createElement('div');
+    tab.className = 'session-tab';
+    tab.draggable = true; // 드래그 가능하도록 설정
+    if (index === currentSessionIndex) {
+      tab.classList.add('active');
+    }
 
-      const tabText = document.createElement('span');
-      tabText.textContent = session.name;
-      tabText.onclick = () => switchToSession(index);
+    const tabText = document.createElement('span');
+    tabText.textContent = session.name;
+    tabText.onclick = () => switchToSession(index);
 
-      const deleteButton = document.createElement('button');
-      deleteButton.textContent = '✖'; // 삭제 버튼
-      deleteButton.className = 'delete-button';
-      deleteButton.onclick = (event) => {
-          event.stopPropagation(); // 탭 전환 방지
-          deleteSession(index);
-      };
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = '✖';
+    deleteButton.className = 'delete-button';
+    deleteButton.onclick = (event) => {
+      event.stopPropagation();
+      deleteSession(index);
+    };
 
-      tab.appendChild(tabText);
-      tab.appendChild(deleteButton);
-      tabs.appendChild(tab);
+    tab.appendChild(tabText);
+    tab.appendChild(deleteButton);
+
+    // 드래그 이벤트 리스너 추가
+    tab.addEventListener('dragstart', dragStart);
+    tab.addEventListener('dragover', dragOver);
+    tab.addEventListener('drop', drop);
+
+    tabs.appendChild(tab);
   });
+}
+
+function dragStart(e) {
+  e.dataTransfer.setData('text/plain', e.target.dataset.index);
+}
+
+function dragOver(e) {
+  e.preventDefault();
+}
+function drop(e) {
+  e.preventDefault();
+  const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+  const toIndex = Array.from(e.target.parentNode.children).indexOf(e.target);
+
+  if (fromIndex !== toIndex) {
+    const temp = chatSessions[fromIndex];
+    chatSessions.splice(fromIndex, 1);
+    chatSessions.splice(toIndex, 0, temp);
+
+    if (currentSessionIndex === fromIndex) {
+      currentSessionIndex = toIndex;
+    } else if (currentSessionIndex > fromIndex && currentSessionIndex <= toIndex) {
+      currentSessionIndex--;
+    } else if (currentSessionIndex < fromIndex && currentSessionIndex >= toIndex) {
+      currentSessionIndex++;
+    }
+
+    updateSessionTabs();
+    switchToSession(currentSessionIndex);
+  }
 }
 
 function deleteSession(index) {
