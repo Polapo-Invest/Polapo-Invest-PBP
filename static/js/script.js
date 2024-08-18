@@ -30,7 +30,7 @@ async function sendMessage() {
 
 async function generateText(prompt, images) {
   try {
-    const response = await fetch("https://opt-wep-mi7kcwnijq-uc.a.run.app/generate_text_stream", {
+    const response = await fetch("/generate_text_stream", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -126,7 +126,6 @@ function toggleSidebar() {
   }
 }
 
-window.onload = () => addMessage("Hello! How can I assist you today?", 'bot');
 
 document.addEventListener('DOMContentLoaded', () => {
   const textInput = document.getElementById('userInput');
@@ -181,6 +180,102 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initial check to hide image container if empty
   checkImageContainerVisibility();
+});
+
+
+//New sessions
+let chatSessions = [];
+let currentSessionIndex = 0;
+
+function startNewSession() {
+  const newSessionName = `Chat ${chatSessions.length + 1}`;
+  const newSession = { 
+      name: newSessionName, 
+      messages: [{ text: "Hello! How can I assist you today?", type: 'bot' }] 
+  };
+  chatSessions.push(newSession);
+  
+  updateSessionTabs();
+  switchToSession(chatSessions.length - 1);
+}
+
+
+function switchToSession(index) {
+    currentSessionIndex = index;
+    loadSession(chatSessions[index]);
+    updateSessionTabs();
+}
+
+function loadSession(session) {
+    const chatContainer = document.getElementById('chatContainer');
+    chatContainer.innerHTML = '';  // 기존 메시지 제거
+
+    session.messages.forEach(message => {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${message.type}`;
+        messageDiv.innerHTML = `<div class="message-bubble">${message.text}</div>`;
+        chatContainer.appendChild(messageDiv);
+    });
+}
+
+function saveMessage(message) {
+    chatSessions[currentSessionIndex].messages.push({ text: message, type: 'user' });
+}
+
+function updateSessionTabs() {
+  const tabs = document.getElementById('sessionTabs');
+  tabs.innerHTML = '';
+
+  chatSessions.forEach((session, index) => {
+      const tab = document.createElement('div');
+      tab.className = 'session-tab';
+      if (index === currentSessionIndex) {
+          tab.classList.add('active');
+      }
+
+      const tabText = document.createElement('span');
+      tabText.textContent = session.name;
+      tabText.onclick = () => switchToSession(index);
+
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = '✖'; // 삭제 버튼
+      deleteButton.className = 'delete-button';
+      deleteButton.onclick = (event) => {
+          event.stopPropagation(); // 탭 전환 방지
+          deleteSession(index);
+      };
+
+      tab.appendChild(tabText);
+      tab.appendChild(deleteButton);
+      tabs.appendChild(tab);
+  });
+}
+
+function deleteSession(index) {
+  if (chatSessions.length > 1) {
+      chatSessions.splice(index, 1);
+      if (currentSessionIndex >= index) {
+          currentSessionIndex = Math.max(currentSessionIndex - 1, 0);
+      }
+      updateSessionTabs();
+      switchToSession(currentSessionIndex);
+  } else {
+      alert("You must have at least one session.");
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    startNewSession();  // 첫 번째 세션 생성
+
+    const sendButton = document.getElementById('sendButton');
+    sendButton.addEventListener('click', () => {
+        const userInput = document.getElementById('userInput').value;
+        if (userInput.trim() !== '') {
+            saveMessage(userInput);  // 메시지 저장
+            loadSession(chatSessions[currentSessionIndex]);  // 현재 세션 다시 로드
+            document.getElementById('userInput').value = '';  // 입력창 초기화
+        }
+    });
 });
 
 // get_tricker

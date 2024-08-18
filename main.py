@@ -1,6 +1,6 @@
 import os
 import google.generativeai as genai
-from flask import Flask, render_template, request, Response, jsonify, stream_with_context
+from flask import Flask, render_template, request, Response, jsonify, stream_with_context, session
 from dotenv import load_dotenv
 import pandas as pd
 import quantstats as qs
@@ -22,6 +22,9 @@ genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
 
 app = Flask(__name__, static_folder='static', template_folder="templates")
 
+app.secret_key = 'your_secret_key_here'  # 세션을 위해 필요한 시크릿 키
+
+chat_sessions = {}
 
     
 @app.route('/get_ticker', methods=['GET'])
@@ -224,5 +227,32 @@ def generate_text_stream():
             "data": None
         }), 405
 
+
+@app.route('/new_chat', methods=['POST'])
+def new_chat():
+    # Create a new chat session
+    session['session_id'] = len(chat_sessions) + 1
+    chat_sessions[session['session_id']] = []
+    return jsonify(success=True, session_id=session['session_id'])
+
+
+@app.route('/save_message', methods=['POST'])
+def save_message():
+    data = request.json
+    session_id = session.get('session_id')
+    if session_id in chat_sessions:
+        chat_sessions[session_id].append(data['message'])
+        return jsonify(success=True)
+    return jsonify(success=False, error="Session not found")
+
+
+@app.route('/get_messages', methods=['GET'])
+def get_messages():
+    session_id = session.get('session_id')
+    if session_id in chat_sessions:
+        return jsonify(success=True, messages=chat_sessions[session_id])
+    return jsonify(success=False, error="Session not found")
+
+
 if __name__ == '__main__':
-    app.run(port=int(os.environ.get('PORT', 8080)))
+    app.run(port=8080, debug=True)

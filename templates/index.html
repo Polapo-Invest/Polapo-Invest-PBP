@@ -65,22 +65,27 @@
     <div class="sidebar" id="sidebar">
         <button class="toggle-button" onclick="toggleSidebar()">☰</button>
         <div class="sidebar-content" id="sidebarContent">
-            <div class="chatbot-box-container bg-white rounded-lg shadow-md">
-                <h1 class="text-3xl font-bold mb-4 text-center">ChatBot</h1>
-                <div class="chat" id="chatContainer"></div>
-                <div class="image-container hidden" id="imageContainer"></div>
-                <div class="flex">
-                  <input
-                  type="text"
-                  id="userInput"
-                  placeholder="Type your message here..."
-                  class="outline-none"
-                  onkeyup="handleKeyPress(event)"
-                />                   
-                 <button class="send-button" onclick="sendMessage()">Send</button>
-                </div>
-                <div class="typing-indicator" id="typingIndicator"></div>
+          <div class="chatbot-box-container bg-white rounded-lg shadow-md">
+            <div class="session-controls">
+              <button class="new-chat-button" onclick="startNewSession()">New Chat</button>
+              <div class="session-tabs" id="sessionTabs">
+              </div>
             </div>
+            <h1 class="text-3xl font-bold mb-4 text-center">ChatBot</h1>
+            <div class="chat" id="chatContainer"></div>
+            <div class="image-container hidden" id="imageContainer"></div>
+            <div class="flex">
+              <input
+                type="text"
+                id="userInput"
+                placeholder="Type your message here..."
+                class="outline-none"
+                onkeyup="handleKeyPress(event)"
+              />                   
+              <button class="send-button" id = 'sendButton' onclick="sendMessage()">Send</button>
+            </div>
+            <div class="typing-indicator" id="typingIndicator"></div>
+          </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js"></script>

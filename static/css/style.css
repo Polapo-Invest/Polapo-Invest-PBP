@@ -197,13 +197,90 @@ a:hover {
 }
 
 /* Chat Bot */
+.session-controls {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    background-color: #f1f1f1;
+    padding: 5px;
+    border-radius: 8px;
+    border-bottom: 2px solid #ccc; /* 구분선 추가 */
+    overflow-x: hidden; /* 횡스크롤 제거 */
+}
+
+.new-chat-button {
+    margin-right: 10px;
+    padding: 10px 20px;
+    background-color: #007bff; /* 파란색 */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.new-chat-button:hover {
+    background-color: #0069d9; /* Hover 시 약간 어두운 파란색 */
+}
+
+.session-tabs {
+    display: flex;
+    gap: 5px; /* 탭 간의 간격 좁게 */
+    align-items: center;
+    overflow-x: auto; /* 가로 스크롤 가능 */
+    max-width: 400px; /* 최대 너비 설정 */
+    white-space: nowrap;
+}
+
+.session-tab {
+    padding: 10px 15px;
+    background-color: #e0e0e0;
+    color: #333;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s ease;
+    height: 100%;
+}
+
+.session-tab.active {
+    background-color: #007bff; /* 활성화된 탭을 파란색으로 설정 */
+    color: white;
+}
+
+.session-tab:hover {
+    background-color: #d3d3d3;
+}
+
+.delete-button {
+    background: none;
+    border: none;
+    color: #ff5c5c;
+    cursor: pointer;
+    font-size: 10px; /* 삭제 버튼을 작게 설정 */
+    margin-left: 5px; /* 간격 조정 */
+    align-self: center;
+    padding: 0; /* 추가적인 여백 제거 */
+}
+
+.delete-button:hover {
+    color: #ff0000;
+}
+
 .chatbot-box-container {
     resize: both;
     overflow: auto;
     margin-top: 0;
     width: 90%;
     max-width: 450px;
-    max-height: 580px;
+    max-height: 622px;
     min-width: 250px;
     min-height: 300px;
     margin: 10px auto 0;
