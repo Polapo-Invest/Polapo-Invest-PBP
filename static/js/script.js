@@ -60,7 +60,7 @@ async function sendMessage2() {
 
 async function generateText(prompt, images) {
   try {
-    const response = await fetch("http://127.0.0.1:8080/generate_text_stream", {
+    const response = await fetch("https://opt-wep-mi7kcwnijq-uc.a.run.app/generate_text_stream", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -99,7 +99,7 @@ async function generateText(prompt, images) {
 
 async function generateText2(prompt2, images) {
   try {
-    const response2 = await fetch("http://127.0.0.1:8080/generate_SEC_10K_text_stream", {
+    const response2 = await fetch("https://opt-wep-mi7kcwnijq-uc.a.run.app/generate_SEC_10K_text_stream", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
