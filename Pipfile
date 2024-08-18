@@ -4,6 +4,17 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+flask = "*"
+pandas = "*"
+matplotlib = "*"
+yfinance = "*"
+ipython = "*"
+"google.generativeai" = "*"
+python-dotenv = "*"
+seaborn = "*"
+import = "*"
+as = "*"
+qs = "*"
 
 [dev-packages]
 
