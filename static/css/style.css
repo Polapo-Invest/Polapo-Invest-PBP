@@ -124,6 +124,34 @@ a:hover {
     background-color: #2c5282;
 }
 
+
+.secondary-sidebar-content {
+    display: none;
+}
+
+.secondary-sidebar-content h2 {
+    text-align: center;
+}
+
+.secondary-sidebar-content p {
+    padding: 10px;
+}
+
+.toggle-button2 {
+    position: fixed;
+    top: 10px;
+    right: 60px;
+    padding: 15px;
+    background-color: #3182ce;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.toggle-button2:hover {
+    background-color: #2c5282;
+}
+
 .chat-img {
     max-width: 90%;
     margin: 20px 0;
@@ -214,7 +242,31 @@ a:hover {
     transition: all 0.3s;
 }
 
+.secondary-chatbot-box-container {
+    resize: both;
+    overflow: auto;
+    margin-top: 0;
+    width: 90%;
+    max-width: 450px;
+    max-height: 580px;
+    min-width: 250px;
+    min-height: 300px;
+    margin: 10px auto 0;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    transition: all 0.3s;
+}
+
 .chat {
+    overflow-y: auto;
+    height: 400px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e2e2e2;
+}
+
+.secondary-chat {
     overflow-y: auto;
     height: 400px;
     margin-bottom: 20px;

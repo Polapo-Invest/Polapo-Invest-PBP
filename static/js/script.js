@@ -1,8 +1,12 @@
 const promptInput = document.getElementById("userInput");
+const promptInput2 = document.getElementById("userInput2");
 const chatContainer = document.getElementById("chatContainer");
+const secondaryChatContainer = document.getElementById("secondaryChatContainer");
 const typingIndicator = document.getElementById("typingIndicator");
+const typingIndicator2 = document.getElementById("typingIndicator2");
 const sidebar = document.getElementById("sidebar");
 const sidebarContent = document.getElementById("sidebarContent");
+const secondarySidebarContent = document.getElementById("secondarySidebarContent");
 const imageContainer = document.getElementById("imageContainer");
 
 async function sendMessage() {
@@ -28,9 +32,35 @@ async function sendMessage() {
   //clearImagePreviews(); Add this code if you want the image in the imageContainer disappear if the user sends the image.
 }
 
+
+
+async function sendMessage2() {
+  const prompt2 = promptInput2.value.trim();
+  if (!prompt2 && imageContainer.children.length === 0) {
+    alert("Please enter a message or add an image.");  // Browser pop up message
+    return;
+  }
+
+  // Collect image data
+  const images = Array.from(imageContainer.querySelectorAll('.img-preview'))
+    .map(img => img.src.split(',')[1]); // Extract base64 data
+
+  addMessage2(prompt2, 'user', images);
+  promptInput2.value = "";
+
+  showTypingIndicator2();
+
+  const generatedText2 = await generateText2(prompt2, images);
+  addMessage2(generatedText2, 'bot');
+
+  hideTypingIndicator2();
+  //clearImagePreviews(); Add this code if you want the image in the imageContainer disappear if the user sends the image.
+}
+
+
 async function generateText(prompt, images) {
   try {
-    const response = await fetch("https://opt-wep-mi7kcwnijq-uc.a.run.app/generate_text_stream", {
+    const response = await fetch("http://127.0.0.1:8080/generate_text_stream", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -64,6 +94,48 @@ async function generateText(prompt, images) {
   }
 }
 
+
+
+
+async function generateText2(prompt2, images) {
+  try {
+    const response2 = await fetch("http://127.0.0.1:8080/generate_SEC_10K_text_stream", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ prompt2, images }),
+    });
+
+    if (!response2.ok) {
+      console.error("Error:", response2.statusText);
+      return "Error occurred while generating response.";
+    }
+
+    const reader2 = response2.body.getReader();
+    const decoder2 = new TextDecoder();
+    let isFinished2 = false;
+    let generatedTextContent2 = "";
+
+    while (!isFinished2) {
+      const { done, value } = await reader2.read();
+      if (done) {
+        isFinished2 = true;
+        break;
+      }
+      generatedTextContent2 += decoder2.decode(value, { stream: true });
+    }
+
+    return generatedTextContent2;
+  } catch (error) {
+    console.error("Error:", error);
+    return "An error occurred.";
+  }
+}
+
+
+
+
 function addMessage(text, type, images = []) {
 
   let md = window.markdownit();
@@ -90,6 +162,32 @@ function addMessage(text, type, images = []) {
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
+function addMessage2(text, type, images = []) {
+
+  let md = window.markdownit();
+
+  const messageDiv2 = document.createElement("div");
+  messageDiv2.className = `message ${type}`;
+
+  const messageContent2 = document.createElement("div");
+  messageContent2.className = "message-bubble fadeIn";
+  const render = () => {
+    messageContent2.innerHTML = md.render(text);
+  }
+  render()
+
+  images.forEach(src => {
+    const img = document.createElement("img");
+    img.src = `data:image/png;base64,${src}`;
+    img.classList.add("message-image");
+    messageContent2.appendChild(img);
+  });
+
+  messageDiv2.appendChild(messageContent2);
+  secondaryChatContainer.appendChild(messageDiv2);
+  secondaryChatContainer.scrollTop = secondaryChatContainer.scrollHeight;
+}
+
 function clearImagePreviews() {
   while (imageContainer.firstChild) {
     imageContainer.removeChild(imageContainer.firstChild);
@@ -110,11 +208,34 @@ function hideTypingIndicator() {
   }, 1000);
 }
 
+
+let typingTimeout2;
+
+function showTypingIndicator2() {
+  clearTimeout(typingTimeout2);
+  typingIndicator2.style.display = "inline-block";
+}
+
+function hideTypingIndicator2() {
+  typingTimeout2 = setTimeout(() => {
+    typingIndicator2.style.display = "none";
+  }, 1000);
+}
+
+
 function handleKeyPress(event) {
   if (event.key === "Enter") {
     sendMessage();
   }
 }
+
+function secondaryHandleKeyPress(event) {
+  if (event.key === "Enter") {
+    sendMessage2();
+  }
+}
+
+
 
 function toggleSidebar() {
   if (sidebar.style.width === "500px") {
@@ -126,12 +247,39 @@ function toggleSidebar() {
   }
 }
 
+function secondaryToggleSidebar() {
+  if (sidebar.style.width === "500px") {
+    sidebar.style.width = "0";
+    secondarySidebarContent.style.display = "none";
+  } else {
+    sidebar.style.width = "500px";
+    secondarySidebarContent.style.display = "block";
+    addMessage2("Hello!", 'bot');
+  }
+}
+
 window.onload = () => addMessage("Hello! How can I assist you today?", 'bot');
 
 document.addEventListener('DOMContentLoaded', () => {
   const textInput = document.getElementById('userInput');
+  const textInput2 = document.getElementById('userInput2');
 
   textInput.addEventListener('paste', (event) => {
+    const items = (event.clipboardData || window.clipboardData).items;
+    for (const item of items) {
+      if (item.type.indexOf('image') !== -1) {
+        const file = item.getAsFile();
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          displayImage(event.target.result);
+        };
+        reader.readAsDataURL(file);
+        event.preventDefault();
+      }
+    }
+  });
+
+  textInput2.addEventListener('paste', (event) => {
     const items = (event.clipboardData || window.clipboardData).items;
     for (const item of items) {
       if (item.type.indexOf('image') !== -1) {
@@ -182,6 +330,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial check to hide image container if empty
   checkImageContainerVisibility();
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // get_tricker
 document.getElementById('getTickerButton').addEventListener('click', async function() {
