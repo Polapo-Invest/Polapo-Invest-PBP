@@ -1,53 +1,59 @@
 # Polapo Invest Portfolio Backtesting Platform
-## 🔑 GUIDES
-## python 가상환경 세팅
-
+## 🔑 INSTALLATION GUIDES
+1. Clone the repository:
+```bash
+git clone https://github.com/Polapo-Invest/OPT-WEP.git
 ```
-pipenv install
+2. Navigate to folder:
+```bash
+cd OPT-WEP
 ```
-
-## 가상환경 진입
-
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
 ```
-pipenv shell
+4. Create `.env` file in the `OPT-WEP` directory for storing API keys and store all necessary key values
 ```
-## 📌 Introducing Polapo Invest Portfolio Backtesting Platform (프로젝트 소개)
-1. 배경
+GEMINI_API_KEY_SECRET='INPUT_YOUR_GEMINI_API_KEY_VALUE_HERE'
+PREDIBASE_API_KEY='INPUT_YOUR_PREDIBASE_API_KEY_VALUE_HERE'
+PINECONE_API_KEY='INPUT_YOUR_PINECONE_API_KEY_VALUE_HERE'
+```
+5. Run application:
+```bash
+python main.py
+```
+## 📌 Project Overview
+### 1. Background (Problem we're solving)
+The Polapo Invest PBP is an abbreviation of our project name, 'Polapo Invest Portfolio Backtesting Platform'.
 
-개인 주식 투자자들은 뇌동매매의 위험성에 노출되어 있습니다. 이는 투자 경험이 부족하고, 투자 전략이 체계적이지 않기 때문입니다. 이러한 문제를 해결하기 위해, 자산 배분 모델링 기반의 포트폴리오 백테스팅 엔진과 Gemini 1.5 pro 모델 기반 챗봇을 활용하여 수치와 데이터에 기반한 투자 전략을 수립하고, 이를 쉽게 운용할 수 있는 웹 앱을 개발하고자 합니다.
+We believe that people working in finance, such as portfolio managers, quant researchers, and quant traders, need a platform where they can easily and efficiently access to not only plain financial data like stock prices, but intuitive investment portfolio insights.
 
-2. 목적
-   
-• 개인 주식 투자자들에게 수치와 데이터에 기반한 투자 전략의 접근성을 낮춤
-• 누구나 자신만의 투자 포트폴리오를 운용할 수 있도록 함
-• 뇌동매매의 위험성을 줄이고, 각 유저들의 투자 포트폴리오에 대한 인사이트를 제공
+Also, many individual beginner stock investors have high possibilities to be exposed to the risk of panic trading. We think this is due to a lack of investment experience and an unsystematic investment strategy.
 
-3. 주요 기능
-   
-• 자산 배분 모델링: 동일 비중(EW), 글로벌최소분산(GMV) 등의 횡적 배분 모형과 변동성 타겟팅, CVaR 타겟팅 등의 종적 배분 모형을 바탕으로 최적의 자산 배분 비율을 도출하는 모델링
-• 포트폴리오 백테스팅 엔진: 자산 배분 모델링을 기반으로 구성된 사용자의 투자 포트폴리오의 성과 및 퍼포먼스를 분석하는 엔진
-• Gemini 1.5 pro 모델 기반 챗봇: 금융 시장의 수치와 데이터, 그래프에 대한 이해 지원 및 인사이트 제공
-• 웹 앱: 위의 기능들을 사용자 친화적인 UI로 제공하는 웹 애플리케이션
+### 2. Solution
+To solve the problem stated above, we've worked on developing a platform with features of a portfolio backtesting engine based on asset allocation modeling and LLM-based chatbots for the users to gain investment insights and establish investment strategies based on figures and data.
 
-4. 기대 효과
-   
-• 개인 주식 투자자들의 투자 전략 수립에 대한 어려움을 해소
-• 개인 투자자들에게 스스로 구성한 포트폴리오에 대한 투자 인사이트를 제공
-• 주식 시장에 대한 이해도를 높이고, 투자에 대한 자신감을 향상
+### 3. Core technology
+• Asset allocation modeling: Building cross-sectional models such as equal weight (EW) and global minimum variance (GMV) and time-series models such as volatility targeting(VT) and CVaR targeting to derive the optimal asset allocation ratio
 
-## ⚙️ System Configuration and Architecture (시스템 구성 및 아키텍처)
-![image](https://i.ibb.co/RPDrdPG/image.png)
+• Portfolio Backtesting Engine: An engine that analyzes the profitability and performance of a user's investment portfolio based on asset allocation modeling
+
+• LLM-based chatbots: Utilized Predibase and LlamaIndex for fine-tuning Solar LLM (solar-1-mini-chat-240612) and setting up a RAG system with SEC data (Section 1A - Risk Factors, Section 7 - Management’s Discussion and Analysis of Financial Condition and Results of Operations). Gemini 1.5 pro model was also used for general chatting and financial graph and chart analysis.
+
+• Web App: Implemented above features in a Flask web application in a user-friendly UI
+
+### 4. Customer audience
+• People working in the finance field such as portfolio managers, quant researchers, and quant traders, who want more efficiency in their workflow.
+
+• From individual beginner investors exposed to the risk of panic trading to advanced investors who want easy access to investment portfolio insights.
+
+## ⚙️ System Configuration and Architecture
+![image](https://i.ibb.co/LYM1Vds/image.png)
 ![image](https://i.ibb.co/Rg9DYmQ/image.png)
+![image](https://i.ibb.co/g38s0By/image.png)
 
-## 💻 Usage (사용 방법)
-![image](https://i.ibb.co/jLKgFjF/image.png)
-![image](https://i.ibb.co/RcjLJHh/image.png)
-![image](https://i.ibb.co/cxBCJ4k/image.png)
-![image](https://i.ibb.co/BLPm918/image.png)
-![image](https://i.ibb.co/kMym2N6/image.png)
-![image](https://i.ibb.co/wJFP3bB/image.png)
-![image](https://i.ibb.co/PxCsvvv/image.png)
-![image](https://i.ibb.co/ysm16z0/image.png)
-![image](https://i.ibb.co/pwYWVMw/image.png)
-![image](https://i.ibb.co/0fWbjnF/image.png)
-![image](https://i.ibb.co/80jpgVg/image.png)
+## 💻 Usage
+
+You can watch the video by clicking the image below.
+
+[<img src="https://i.ibb.co/6XKYp6X/image.png" alt="Polap_Invest"/>](https://youtu.be/CAy_eMLIP4Y)
