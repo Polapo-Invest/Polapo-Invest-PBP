@@ -228,6 +228,8 @@ function updateSessionTabs() {
     const tab = document.createElement('div');
     tab.className = 'session-tab';
     tab.draggable = true; // 드래그 가능하도록 설정
+    tab.dataset.index = index; // 고유한 인덱스 추가
+
     if (index === currentSessionIndex) {
       tab.classList.add('active');
     }
@@ -263,10 +265,11 @@ function dragStart(e) {
 function dragOver(e) {
   e.preventDefault();
 }
+
 function drop(e) {
   e.preventDefault();
   const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
-  const toIndex = Array.from(e.target.parentNode.children).indexOf(e.target);
+  const toIndex = parseInt(e.target.closest('.session-tab').dataset.index);
 
   if (fromIndex !== toIndex) {
     const temp = chatSessions[fromIndex];
