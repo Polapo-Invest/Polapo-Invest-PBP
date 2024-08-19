@@ -14,6 +14,22 @@ import tempfile
 from etf_functions import get_etf_price_data, get_ticker_by_company_name
 from backtesting_engine import GEMTU772
 
+
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.llms.predibase import PredibaseLLM
+
+from pinecone.grpc import PineconeGRPC
+
+environment = "asia-northeast1-gcp"
+
+index_name = "predibase-hf-sec-10-k-chatbot"
+
+
+from llama_index.core import VectorStoreIndex, ServiceContext
+from llama_index.vector_stores.pinecone import PineconeVectorStore
+from llama_index.core.service_context import set_global_service_context
+
+
 matplotlib.use('Agg') # Engine reset issue solution code (TkAgg->Agg)
 
 load_dotenv()
@@ -198,22 +214,17 @@ def generate_text_stream():
             },
             "data": None
         }), 405
-        
-        
-
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from llama_index.llms.predibase import PredibaseLLM
-
-from pinecone.grpc import PineconeGRPC
-
-environment = "asia-northeast1-gcp"
-
-index_name = "predibase-hf-sec-10-k-chatbot"
 
 
-from llama_index.core import VectorStoreIndex, ServiceContext
-from llama_index.vector_stores.pinecone import PineconeVectorStore
-from llama_index.core.service_context import set_global_service_context
+###################################################################
+#                                                                 #
+#                                                                 #
+#       This is where the Predibase Solar finetuned model         #
+#       (solar-1-mini-chat-240612) was implemented                #
+#                                                                 #
+#                                                                 #
+###################################################################
+
 
 @app.route("/generate_SEC_10K_text_stream", methods=["GET", "POST"])
 def generate_SEC_10K_text_stream():
@@ -224,7 +235,7 @@ def generate_SEC_10K_text_stream():
 
         def generate_stream2():
             # Configure Predibase LLM
-            predibase_llm = PredibaseLLM(predibase_api_key= os.environ.get('PREDIBASE_API_KEY'), model_name="solar-1-mini-chat-240612", temperature=0.1, max_new_tokens=512)
+            predibase_llm = PredibaseLLM(predibase_api_key= os.environ.get('PREDIBASE_API_KEY'), adapter_id='sec-10-k-chatbot', adapter_version='1', model_name="solar-1-mini-chat-240612", temperature=0.1, max_new_tokens=512)
             embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-large-en-v1.5")
 
             # Create a ServiceContext with our Predibase LLM and chosen embedding model
@@ -256,7 +267,7 @@ def generate_SEC_10K_text_stream():
             response = predibase_query_engine.query(prompt2)
             session = str(response)
             for chunk in session:
-                yield chunk
+                yield chunk + "\n"
                 
                 
         return Response(stream_with_context(generate_stream2()), mimetype="text/plain")
