@@ -47,13 +47,13 @@ To solve the problem stated above, we've worked on developing a platform with fe
 
 • From individual beginner investors exposed to the risk of panic trading to advanced investors who want easy access to investment portfolio insights.
 
-## ⚙️ System Configuration and Architecture
-![image](https://i.ibb.co/LYM1Vds/image.png)
-![image](https://i.ibb.co/Rg9DYmQ/image.png)
-![image](https://i.ibb.co/g38s0By/image.png)
-
 ## 💻 Usage
 
 You can watch the video by clicking the image below.
 
 [<img src="https://i.ibb.co/6XKYp6X/image.png" alt="Polap_Invest"/>](https://youtu.be/CAy_eMLIP4Y)
+
+## ⚙️ System Configuration and Architecture
+![image](https://i.ibb.co/LYM1Vds/image.png)
+![image](https://i.ibb.co/Rg9DYmQ/image.png)
+![image](https://i.ibb.co/g38s0By/image.png)
