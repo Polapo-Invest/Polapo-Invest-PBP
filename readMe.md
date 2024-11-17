@@ -2,7 +2,7 @@
 ## 🔑 INSTALLATION GUIDES
 1. Clone the repository:
 ```bash
-git clone https://github.com/Polapo-Invest/OPT-WEP.git
+git clone https://github.com/Polapo-Invest/Polapo-Invest-PBP.git
 ```
 2. Navigate to folder:
 ```bash
