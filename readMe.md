@@ -2,7 +2,7 @@
 
 ## 🏆 Ranked Top 30 in the Upstage 2024 Global AI Week Hackathon
 
-<a href="https://ibb.co/rvK61fS"><img src="https://i.ibb.co/9GmTC3L/Global-AI-Week-Polapo-Invest.png" alt="Global-AI-Week-Polapo-Invest" border="0"></a>
+<a href="https://i.ibb.co/4SjR0Fp/Global-AI-Week-Polapo-Invest.png"><img src="https://i.ibb.co/4SjR0Fp/Global-AI-Week-Polapo-Invest.png" alt="Global-AI-Week-Polapo-Invest" border="0"></a>
 
 ## 🔑 INSTALLATION GUIDES
 1. Clone the repository:
