@@ -1,4 +1,9 @@
 # Polapo Invest Portfolio Backtesting Platform
+
+## 🏆 Ranked Top 30 in the Upstage 2024 Global AI Week Hackathon
+
+<a href="https://ibb.co/rvK61fS"><img src="https://i.ibb.co/9GmTC3L/Global-AI-Week-Polapo-Invest.png" alt="Global-AI-Week-Polapo-Invest" border="0"></a>
+
 ## 🔑 INSTALLATION GUIDES
 1. Clone the repository:
 ```bash
